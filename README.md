@@ -1,8 +1,6 @@
-# Web Engineering 2016-2017 / UrlShortener
+# ZaraTech / UrlShortener
 
-[![Build Status](https://travis-ci.org/UNIZAR-30246-WebEngineering/UrlShortener.svg?branch=master)](https://travis-ci.org/UNIZAR-30246-WebEngineering/UrlShortener)
-
-This is the shared repository for the project developed in this course. Go to the [wiki](../../wiki) to start your project.
+[![Build Status](https://api.travis-ci.org/ZaraTech/UrlShortener.svg?branch=master)](https://api.travis-ci.org/ZaraTech/UrlShortener)
 
 ## Projects
 
