@@ -12,7 +12,3 @@ This is the shared repository for the project developed in this course. Go to th
 ## Teams
 
 To be completed.
-
-## Agile
-
-[Trello](https://trello.com/b/td9JtiKI/urlshortener)
