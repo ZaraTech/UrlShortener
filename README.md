@@ -1,6 +1,6 @@
 # ZaraTech / UrlShortener
 
-[![Build Status](https://api.travis-ci.org/ZaraTech/UrlShortener.svg?branch=master)](https://api.travis-ci.org/ZaraTech/UrlShortener)
+[![Build Status](https://api.travis-ci.org/ZaraTech/UrlShortener.svg?branch=master)](https://travis-ci.org/ZaraTech/UrlShortener)
 
 ## Projects
 
