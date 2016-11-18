@@ -17,7 +17,7 @@ $(document).ready(
 			    + "<div class='alert alert-info lead'><a target='_blank' href='"
                             + msg.qr
                             + "'>"
-                            + "Get QR here!"
+                            + msg.qr
                             + "</a></div>");
                     },
                     error : function() {
