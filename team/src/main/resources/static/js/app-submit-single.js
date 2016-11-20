@@ -5,7 +5,7 @@ $(document).ready(
                 event.preventDefault();
                 $.ajax({
                     type : "POST",
-                    url : "/link",
+                    url : "/link-single",
                     data : $(this).serialize(),
                     success : function(msg) {
                         $("#result").html(

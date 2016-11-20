@@ -40,7 +40,7 @@ public class UrlShortenerController {
 	@Autowired
 	protected ClickRepository clickRepository;
 
-	@RequestMapping(value = "/{id:(?!link).*}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{id:(?!link-single|link-multi).*}", method = RequestMethod.GET)
 	public ResponseEntity<?> redirectTo(@PathVariable String id,
 			HttpServletRequest request) {
 		ShortURL l = shortURLRepository.findByKey(id);
@@ -69,8 +69,8 @@ public class UrlShortenerController {
 		return new ResponseEntity<>(h, HttpStatus.valueOf(l.getMode()));
 	}
 
-	@RequestMapping(value = "/link", method = RequestMethod.POST)
-	public ResponseEntity<ShortURL> shortener(@RequestParam("url") String url,
+	@RequestMapping(value = "/link-single", method = RequestMethod.POST)
+	public ResponseEntity<ShortURL> singleShortener(@RequestParam("url") String url,
 											  @RequestParam(value = "sponsor", required = false) String sponsor,
 											  HttpServletRequest request) {
 		ShortURL su = createAndSaveIfValid(url, sponsor, UUID
@@ -83,6 +83,21 @@ public class UrlShortenerController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}
+	
+	@RequestMapping(value = "/link-multi", method = RequestMethod.POST)
+    public ResponseEntity<ShortURL> multiShortener(@RequestParam("url") String url,
+                                              @RequestParam(value = "sponsor", required = false) String sponsor,
+                                              HttpServletRequest request) {
+        ShortURL su = createAndSaveIfValid(url, sponsor, UUID
+                .randomUUID().toString(), extractIP(request));
+        if (su != null) {
+            HttpHeaders h = new HttpHeaders();
+            h.setLocation(su.getUri());
+            return new ResponseEntity<>(su, h, HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
 
 	private ShortURL createAndSaveIfValid(String url, String sponsor,
 										  String owner, String ip) {

@@ -11,6 +11,14 @@ buildscript {
 }
 apply plugin: "spring-boot"
 apply plugin: 'eclipse-wtp'
+apply plugin: 'war'
+
+// This will apply the Java plugin to our project, which adds a number of tasks to our project.
+apply plugin: 'java'
+
+war {
+    baseName = 'UrlShortener'
+}
 
 eclipse {
     project {
@@ -20,6 +28,13 @@ eclipse {
 
 dependencies {
     compile project(':common')
+    
+    // Provides web support
+    compile 'org.springframework.boot:spring-boot-starter-web'
+    compile 'javax.servlet:jstl'
+    compile 'org.springframework.boot:spring-boot-starter-websocket'
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+    providedRuntime 'org.apache.tomcat.embed:tomcat-embed-jasper'
 
     // Provides the production database
     runtime 'org.hsqldb:hsqldb'

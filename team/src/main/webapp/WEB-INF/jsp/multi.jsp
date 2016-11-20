@@ -8,20 +8,20 @@
 <script type="text/javascript" src="webjars/jquery/2.1.4/jquery.min.js"></script>
 <script type="text/javascript"
 	src="webjars/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="js/app.js">
+<script type="text/javascript" src="js/app-submit-multi.js">
 </script>
 </head>
 <body>
 	<div class="container-full">
 		<div class="row">
 			<div class="col-lg-12 text-center">
-				<h1>URL Shortener</h1>
-				<p class="lead">A front-end example page for the project</p>
+				<h1>Welcome to BUS</h1>
+				<p class="lead">The Best URL Shortener</p>
 				<br>
 				<form class="col-lg-12" role="form" id="shortener" action="">
 					<div class="input-group input-group-lg col-sm-offset-4 col-sm-4">
-						<input type="text" class="center-block form-control input-lg"
-							title="Enter a URL" placeholder="Enter a URL" name="url">
+						<textarea type="text" class="center-block form-control input-lg"
+							title="Enter a URL" placeholder="Enter a URL" name="url"></textarea>
 						<span class="input-group-btn"><button
 								class="btn btn-lg btn-primary" type="submit">Short me!</button></span>
 					</div>
