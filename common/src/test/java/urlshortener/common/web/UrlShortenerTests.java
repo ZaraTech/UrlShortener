@@ -67,7 +67,7 @@ public class UrlShortenerTests {
 	public void thatShortenerCreatesARedirectIfTheURLisOK() throws Exception {
 		configureTransparentSave();
 
-		mockMvc.perform(post("/link").param("url", "http://example.com/"))
+		mockMvc.perform(post("/link-single").param("url", "http://example.com/"))
 				.andDo(print())
 				.andExpect(redirectedUrl("http://localhost/f684a3c4"))
 				.andExpect(status().isCreated())
@@ -82,7 +82,7 @@ public class UrlShortenerTests {
 		configureTransparentSave();
 
 		mockMvc.perform(
-				post("/link").param("url", "http://example.com/").param(
+				post("/link-single").param("url", "http://example.com/").param(
 						"sponsor", "http://sponsor.com/")).andDo(print())
 				.andExpect(redirectedUrl("http://localhost/f684a3c4"))
 				.andExpect(status().isCreated())
@@ -96,7 +96,7 @@ public class UrlShortenerTests {
 	public void thatShortenerFailsIfTheURLisWrong() throws Exception {
 		configureTransparentSave();
 
-		mockMvc.perform(post("/link").param("url", "someKey")).andDo(print())
+		mockMvc.perform(post("/link-single").param("url", "someKey")).andDo(print())
 				.andExpect(status().isBadRequest());
 	}
 
@@ -105,7 +105,7 @@ public class UrlShortenerTests {
 		when(shortURLRepository.save(org.mockito.Matchers.any(ShortURL.class)))
 				.thenReturn(null);
 
-		mockMvc.perform(post("/link").param("url", "someKey")).andDo(print())
+		mockMvc.perform(post("/link-single").param("url", "someKey")).andDo(print())
 				.andExpect(status().isBadRequest());
 	}
 

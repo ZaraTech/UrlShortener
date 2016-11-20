@@ -80,7 +80,7 @@ public class SystemTests {
 		MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
 		parts.add("url", url);
 		return new TestRestTemplate().postForEntity(
-				"http://localhost:" + this.port+"/link", parts, String.class);
+				"http://localhost:" + this.port+"/link-single", parts, String.class);
 	}
 
 
