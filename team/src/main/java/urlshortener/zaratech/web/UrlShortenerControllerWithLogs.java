@@ -38,33 +38,8 @@ public class UrlShortenerControllerWithLogs extends UrlShortenerController {
 											  HttpServletRequest request) {
 		logger.info("Requested new short for uri " + url);
 		
-		ResponseEntity<ShortURL> response = getUriWithQR(super.singleShortener(url, sponsor, request));
-		
-		return response;
+		return super.singleShortener(url, sponsor, request);
 		
 	}
 	
-	
-	private ResponseEntity<ShortURL> getUriWithQR(ResponseEntity<ShortURL> response){
-			
-		ShortURL body = response.getBody();
-		HttpHeaders headers= response.getHeaders();
-		HttpStatus status = response.getStatusCode();
-		URI uriQR;
-		
-		try {
-			// API QRserver
-			//uriQR = new URI("http://api.qrserver.com/v1/create-qr-code/?data="+ body.getUri() + "!&size=100x100");
-			// API de Google
-			uriQR = new URI("http://chart.googleapis.com/chart?cht=qr&chs=100x100&chl=" + body.getUri() + "&choe=UTF-8");
-			body.setQR(uriQR);
-			
-		} catch (URISyntaxException e) {
-			logger.info("UriQR assignment failed.");
-		}		
-		
-		ResponseEntity<ShortURL> responseWithQR = new ResponseEntity<>(body, headers, status);
-		
-		return responseWithQR;	
-	}
 }

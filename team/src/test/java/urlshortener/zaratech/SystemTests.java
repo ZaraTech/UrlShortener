@@ -1,10 +1,19 @@
-package urlshortener.demo;
+package urlshortener.zaratech;
 
-import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.ReadContext;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+
+import java.net.URI;
+import java.nio.charset.Charset;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -16,15 +25,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import java.net.URI;
-import java.nio.charset.Charset;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.ReadContext;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import urlshortener.common.web.UrlShortenerController;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment= RANDOM_PORT)
@@ -33,7 +37,10 @@ public class SystemTests {
 
 	@Value("${local.server.port}")
 	private int port = 0;
-
+	
+	private static final Logger LOG = LoggerFactory
+			.getLogger(UrlShortenerController.class);
+	
 	@Test
 	public void testHome() throws Exception {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
@@ -64,6 +71,8 @@ public class SystemTests {
 		assertThat(rc.read("$.uri"), is("http://localhost:"+ this.port+"/f684a3c4"));
 		assertThat(rc.read("$.target"), is("http://example.com/"));
 		assertThat(rc.read("$.sponsor"), is(nullValue()));
+		URI uriQR = new URI("http://chart.googleapis.com/chart?cht=qr&chs=100x100&chl=" + rc.read("$.uri") + "&choe=UTF-8");
+		assertThat(rc.read("$.qr"), is(uriQR.toString()));	
 	}
 
 	@Test
@@ -75,12 +84,11 @@ public class SystemTests {
 		assertThat(entity.getStatusCode(), is(HttpStatus.TEMPORARY_REDIRECT));
 		assertThat(entity.getHeaders().getLocation(), is(new URI("http://example.com/")));
 	}
-
+	
 	private ResponseEntity<String> postLink(String url) {
 		MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
 		parts.add("url", url);
 		return new TestRestTemplate().postForEntity(
 				"http://localhost:" + this.port+"/link-single", parts, String.class);
 	}
-
 }
