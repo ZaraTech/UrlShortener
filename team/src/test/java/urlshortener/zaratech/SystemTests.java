@@ -12,8 +12,6 @@ import java.nio.charset.Charset;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -28,8 +26,6 @@ import org.springframework.util.MultiValueMap;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
 
-import urlshortener.common.web.UrlShortenerController;
-
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment= RANDOM_PORT)
 @DirtiesContext
@@ -37,9 +33,6 @@ public class SystemTests {
 
 	@Value("${local.server.port}")
 	private int port = 0;
-	
-	private static final Logger LOG = LoggerFactory
-			.getLogger(UrlShortenerController.class);
 	
 	@Test
 	public void testHome() throws Exception {

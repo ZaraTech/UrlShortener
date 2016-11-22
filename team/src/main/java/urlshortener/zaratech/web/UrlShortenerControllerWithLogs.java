@@ -56,7 +56,7 @@ public class UrlShortenerControllerWithLogs extends UrlShortenerController {
 			logger.info("Requested new QR for uri " + uri.toString());
 			
 			// API QRserver
-			//uriQR = new URI("http://api.qrserver.com/v1/create-qr-code/?data="+ uri + "!&size=100x100");
+			//http://api.qrserver.com/v1/create-qr-code/?data="+ uri + "!&size=100x100"
 			
 			// API de Google
 			uriQR = new URI("http://chart.googleapis.com/chart?cht=qr&chs=100x100&chl=" + uri.toString() + "&choe=UTF-8");

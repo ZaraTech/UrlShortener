@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.util.UUID;
@@ -81,42 +80,11 @@ public class UrlShortenerController {
 			HttpHeaders h = new HttpHeaders();
 			h.setLocation(su.getUri());
 			
-//			ResponseEntity<ShortURL> response = getUriWithQR(new ResponseEntity<>(su, h, HttpStatus.CREATED));
-			
 			return new ResponseEntity<>(su, h, HttpStatus.CREATED);
 		} else {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}
-	
-//	private ResponseEntity<ShortURL> getUriWithQR(ResponseEntity<ShortURL> response){
-//		
-//		ShortURL body = response.getBody();
-//		HttpHeaders headers= response.getHeaders();
-//		HttpStatus status = response.getStatusCode();
-//		URI uriQR;
-//		URI uri = body.getUri();
-//		
-//		try {
-//			LOG.info("Requested new QR for uri " + uri.toString());
-//			
-//			// API QRserver
-//			//uriQR = new URI("http://api.qrserver.com/v1/create-qr-code/?data="+ uri + "!&size=100x100");
-//			
-//			// API de Google
-//			uriQR = new URI("http://chart.googleapis.com/chart?cht=qr&chs=100x100&chl=" + uri.toString() + "&choe=UTF-8");
-//			body.setQR(uriQR);
-//			
-//			LOG.info("QR obtained " + uriQR);
-//			
-//		} catch (URISyntaxException e) {
-//			LOG.info("Uri-QR assignment failed.");
-//		}		
-//		
-//		ResponseEntity<ShortURL> responseWithQR = new ResponseEntity<>(body, headers, status);
-//		
-//		return responseWithQR;	
-//	}
 	
 	@RequestMapping(value = "/link-multi", method = RequestMethod.POST)
     public ResponseEntity<ShortURL> multiShortener(@RequestParam("url") String url,
