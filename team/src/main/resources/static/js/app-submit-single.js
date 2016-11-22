@@ -13,6 +13,11 @@ $(document).ready(
                             + msg.uri
                             + "'>"
                             + msg.uri
+                            + "</a></div>"
+			    + "<div class='alert alert-info lead'><a target='_blank' href='"
+                            + msg.qr
+                            + "'>"
+                            + "Get QR here!"
                             + "</a></div>");
                     },
                     error : function() {
