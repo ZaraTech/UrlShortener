@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -36,4 +37,13 @@ public class UrlShortenerControllerWithLogs extends UrlShortenerController {
 		logger.info("Requested new short for uri " + url);
 		return super.singleShortener(url, sponsor, request);
 	}
+	
+	@Override
+    public ResponseEntity<ShortURL[]> multiShortener(@RequestParam("url") MultipartFile csvFile,
+                                              @RequestParam(value = "sponsor", required = false) String sponsor,
+                                              HttpServletRequest request) {
+	    
+	    logger.info("Requested new short for CSV file '" + csvFile.getOriginalFilename() + "'");	    
+        return super.multiShortener(csvFile, sponsor, request);
+    }
 }
