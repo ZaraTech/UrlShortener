@@ -13,6 +13,11 @@ $(document).ready(
                             + msg.uri
                             + "'>"
                             + msg.uri
+                            + "</a></div>"+
+                            "<div class='alert alert-success lead'><a target='_blank' href='"
+                            + msg.uri+"/+'"
+                            + ">"
+                            + msg.uri+"/+"
                             + "</a></div>");
                     },
                     error : function() {

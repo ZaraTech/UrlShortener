@@ -1,14 +1,18 @@
+<%@ page language="java" %>
+<%@ page import = "java.sql.Connection"%>
+<%@ page import = "java.sql.DriverManager"%>
+<%@ page import = "java.sql.ResultSet"%>
+<%@ page import = "java.sql.Statement"%>
 <!DOCTYPE html>
 <html>
 <head>
-<title>URL Shortener</title>
+	<title>URL Shortener</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css"
 	href="../webjars/bootstrap/3.3.5/css/bootstrap.min.css" />
 <script type="text/javascript" src="../webjars/jquery/2.1.4/jquery.min.js"></script>
 <script type="text/javascript"
 	src="../webjars/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-</script>
 </head>
 <body>
 	<div class="container-full">
