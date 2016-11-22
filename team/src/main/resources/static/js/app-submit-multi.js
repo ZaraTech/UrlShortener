@@ -9,20 +9,20 @@ $(document).ready(
                     url : "/link-multi",
                     data: data,
                     cache: false,
-					contentType: false,
-					processData: false,
+                    contentType: false,
+                    processData: false,
                     success : function(msg) {
-						
-						var len = msg.length;
+                        
+                        var len = msg.length;
 
-						for(var i = 0; i < len; i++){
-							$("#result").append(
-								"<div class='alert alert-success lead'><a target='_blank' href='"
-								+ msg[i].uri
-								+ "'>"
-								+ msg[i].uri
-								+ "</a></div>");
-						}
+                        for(var i = 0; i < len; i++){
+                            $("#result").append(
+                                "<div class='alert alert-success lead'><a target='_blank' href='"
+                                + msg[i].uri
+                                + "'>"
+                                + msg[i].uri
+                                + "</a></div>");
+                        }
                     },
                     error : function() {
                         $("#result").html(
