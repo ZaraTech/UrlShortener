@@ -81,9 +81,11 @@ public class UrlShortenerController {
 											  HttpServletRequest request) {
 		ShortURL su = createAndSaveIfValid(url, sponsor, UUID
 				.randomUUID().toString(), extractIP(request));
+		
 		if (su != null) {
 			HttpHeaders h = new HttpHeaders();
 			h.setLocation(su.getUri());
+			
 			return new ResponseEntity<>(su, h, HttpStatus.CREATED);
 		} else {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
