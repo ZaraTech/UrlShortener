@@ -67,12 +67,7 @@ public class SystemTests {
 		URI uriQR = new URI("http://chart.googleapis.com/chart?cht=qr&chs=100x100&chl=" + rc.read("$.uri") + "&choe=UTF-8");
 		assertThat(rc.read("$.qr"), is(uriQR.toString()));	
 		
-		//TODO
-//		//comprobar que una peticion HTTP GET a la uri original no es una redireccion a la misma uri
-//		ResponseEntity<String> entity2 = new TestRestTemplate().getForEntity(
-//				"http://localhost:" + this.port
-//						+ "/f684a3c4", String.class);
-//		assertThat(....));
+		//TODO comprobar que una peticion HTTP GET a la uri original no es una redireccion a la misma uri
 	}
 
 	@Test
