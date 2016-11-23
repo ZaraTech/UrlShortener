@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import java.sql.*;
+
 import javax.servlet.http.HttpServletRequest;
 
 import urlshortener.common.domain.ShortURL;
@@ -29,17 +31,18 @@ public class UrlShortenerControllerWithLogs extends UrlShortenerController {
 	public ResponseEntity<?> redirectTo(@PathVariable String id, HttpServletRequest request) {
 		logger.info("Requested redirection with hash " + id);
 		return super.redirectTo(id, request);
-	}	  
-    
+	}
 
-	@Override
+
+
+    @Override
 	public ResponseEntity<ShortURL> singleShortener(@RequestParam("url") String url,
 											  @RequestParam(value = "sponsor", required = false) String sponsor,
 											  HttpServletRequest request) {
 		logger.info("Requested new short for uri " + url);
-		
+
 		ResponseEntity<ShortURL> response = getUriWithQR(super.singleShortener(url, sponsor, request));
-		
+
 		return response;
 		
 	}
@@ -51,7 +54,6 @@ public class UrlShortenerControllerWithLogs extends UrlShortenerController {
 		HttpStatus status = response.getStatusCode();
 		URI uriQR;
 		URI uri = body.getUri();
-		
 		try {
 			logger.info("Requested new QR for uri " + uri.toString());
 			
@@ -61,7 +63,7 @@ public class UrlShortenerControllerWithLogs extends UrlShortenerController {
 			// API de Google
 			uriQR = new URI("http://chart.googleapis.com/chart?cht=qr&chs=100x100&chl=" + uri.toString() + "&choe=UTF-8");
 			body.setQR(uriQR);
-			
+
 			logger.info("QR obtained " + uriQR);
 			
 		} catch (URISyntaxException e) {
@@ -72,5 +74,5 @@ public class UrlShortenerControllerWithLogs extends UrlShortenerController {
 		
 		return responseWithQR;	
 	}
-	
+
 }
