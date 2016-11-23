@@ -10,7 +10,7 @@ import urlshortener.common.repository.ClickRepositoryImpl;
 import urlshortener.common.repository.ShortURLRepository;
 import urlshortener.common.repository.ShortURLRepositoryImpl;
 
-@SuppressWarnings("ALL")
+
 @Configuration
 public class PersistenceContext {
 

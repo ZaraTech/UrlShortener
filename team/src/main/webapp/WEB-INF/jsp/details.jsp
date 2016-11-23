@@ -10,7 +10,7 @@
 	src="../webjars/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 </head>
 <body>
-	<div class="container-full">
+    <div class="container-full">
 		<nav class="navbar navbar-default">
 			<div class="container-fluid">
 				<!-- Brand and toggle get grouped for better mobile display -->

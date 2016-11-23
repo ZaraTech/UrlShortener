@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import java.sql.*;
 
 import javax.servlet.http.HttpServletRequest;
 
