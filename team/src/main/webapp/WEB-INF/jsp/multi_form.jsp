@@ -46,11 +46,11 @@
                 <h1>Welcome to BUS</h1>
                 <p class="lead">The Best URL Shortener</p>
                 <br>
-                <form class="col-lg-12" role="form" id="shortener" action="" enctype="multipart/form-data">
-                    <div class="input-group input-group-lg col-sm-offset-4 col-sm-4">
-                        <input type="file" class="form-control file input-lg" style="padding:0px"
-                            title="CSV file containing an URL list to shorten" placeholder="Enter a CSV file" name="url" data-allowed-file-extensions='["csv"]'>
-                        <span class="input-group-btn"><button
+                <form class="col-lg-12" role="form" id="shortener" action="">
+                    <div class="input-group col-sm-offset-4 col-sm-4">
+                        <textarea type="text" class="form-control custom-control"
+                            title="Enter a URL" placeholder="Enter a list of URLs (one per line)" name="url" rows="7" style="resize:none"></textarea>
+                        <span class="input-group-addon"><button
                                 class="btn btn-lg btn-primary" type="submit">Short me!</button></span>
                     </div>
                 </form>
