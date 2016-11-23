@@ -12,7 +12,7 @@ $(document).ready(
                     contentType: false,
                     processData: false,
                     success : function(msg) {
-                        
+
                         var len = msg.length;
 
                         for(var i = 0; i < len; i++){
@@ -21,6 +21,11 @@ $(document).ready(
                                 + msg[i].uri
                                 + "'>"
                                 + msg[i].uri
+                                + "</a></div>"+
+                                "<div class='alert alert-success lead'><a target='_blank' href='"
+                                + msg[i].uri+"/+'"
+                                + ">"
+                                + msg[i].uri+"/+"
                                 + "</a></div>");
                         }
                     },

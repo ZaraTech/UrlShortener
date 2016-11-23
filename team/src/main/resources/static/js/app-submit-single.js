@@ -18,11 +18,16 @@ $(document).ready(
                             + msg.qr
                             + "'>"
                             + "Get QR here!"
-                            + "</a></div>");
+                            + "</a></div>"+
+                            "<div class='alert alert-success lead'><a target='_blank' href='"
+                            + msg.uri+"/+'"
+                            + ">"
+                            + msg.uri+"/+"
+			    + "</a></div>");
                     },
                     error : function() {
                         $("#result").html(
-                                "<div class='alert alert-danger lead'>ERROR</div>");
+                            "<div class='alert alert-danger lead'>ERROR</div>");
                     }
                 });
             });
