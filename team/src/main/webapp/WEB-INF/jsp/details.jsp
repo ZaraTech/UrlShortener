@@ -1,8 +1,3 @@
-<%@ page language="java" %>
-<%@ page import = "java.sql.Connection"%>
-<%@ page import = "java.sql.DriverManager"%>
-<%@ page import = "java.sql.ResultSet"%>
-<%@ page import = "java.sql.Statement"%>
 <!DOCTYPE html>
 <html>
 <head>

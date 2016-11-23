@@ -13,6 +13,11 @@ $(document).ready(
                             + msg.uri
                             + "'>"
                             + msg.uri
+                            + "</a></div>"
+                            + "<div class='alert alert-info lead'><a target='_blank' href='"
+                            + msg.qr
+                            + "'>"
+                            + "Get QR here!"
                             + "</a></div>"+
                             "<div class='alert alert-success lead'><a target='_blank' href='"
                             + msg.uri+"/+'"
@@ -22,7 +27,7 @@ $(document).ready(
                     },
                     error : function() {
                         $("#result").html(
-                                "<div class='alert alert-danger lead'>ERROR</div>");
+                            "<div class='alert alert-danger lead'>ERROR</div>");
                     }
                 });
             });
