@@ -20,7 +20,9 @@ war {
     baseName = 'UrlShortener'
     manifest {
     attributes(
-      'Main-Class': 'urlshortener.zaratech.Application'
+      "Implementation-Title": project.name,
+      "Implementation-Version": 1.0,
+      "Implementation-Timestamp": new Date()
     )
   }
 }
