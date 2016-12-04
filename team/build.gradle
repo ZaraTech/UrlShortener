@@ -16,17 +16,6 @@ apply plugin: 'war'
 // This will apply the Java plugin to our project, which adds a number of tasks to our project.
 apply plugin: 'java'
 
-war {
-    baseName = 'UrlShortener'
-    manifest {
-    attributes(
-      "Implementation-Title": project.name,
-      "Implementation-Version": 1.0,
-      "Implementation-Timestamp": new Date()
-    )
-  }
-}
-
 eclipse {
     project {
         name = 'UrlShortener.zaratech'
@@ -54,4 +43,13 @@ dependencies {
     testCompile 'org.springframework.boot:spring-boot-starter-test'
     testCompile 'org.apache.httpcomponents:httpclient:4.5.2'
     testCompile 'com.jayway.jsonpath:json-path:2.2.0'
+}
+
+war {
+    manifest {
+        attributes(
+            "Class-Path": configurations.compile.collect { it.getName() }.join(' ')
+        )
+    }
+    baseName = 'UrlShortener'
 }
