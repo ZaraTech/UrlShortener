@@ -48,7 +48,7 @@ dependencies {
 war {
     manifest {
         attributes(
-            "Class-Path": 'classes',
+            "Class-Path": 'WEB-INF/classes',
             "Main-Class": 'urlshortener.zaratech.Application'
         )
     }
