@@ -15,3 +15,6 @@ subprojects {
 	 maven { url 'http://repo.spring.io/release' }
    }
 }
+
+task stage(dependsOn: ['build', 'clean'])
+build.mustRunAfter clean
