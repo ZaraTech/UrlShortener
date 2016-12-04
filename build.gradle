@@ -19,11 +19,8 @@ subprojects {
 task stage() {
 
     subprojects.each({p ->
-            dependsOn p.clean
         if(hasWarTask(p)) {
             dependsOn p.war
-        } else {
-            dependsOn p.build
         }
     })
 }
