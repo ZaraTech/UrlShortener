@@ -18,6 +18,11 @@ apply plugin: 'java'
 
 war {
     baseName = 'UrlShortener'
+    manifest {
+    attributes(
+      'Main-Class': 'urlshortener.zaratech.Application'
+    )
+  }
 }
 
 eclipse {
