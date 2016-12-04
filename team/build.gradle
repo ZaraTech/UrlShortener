@@ -49,7 +49,7 @@ war {
     manifest {
         attributes(
             "Class-Path": configurations.compile.collect { it.getName() }.join(' '),
-            "Main-Class": urlshortener.zaratech.Application
+            "Main-Class": 'urlshortener.zaratech.Application'
         )
     }
     baseName = 'UrlShortener'
