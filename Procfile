@@ -1,1 +1,1 @@
-web: java -Dserver.port=$PORT $JAVA_OPTS -jar team/build/libs/UrlShortener.war
+web: java -Dserver.port=$PORT $JAVA_OPTS -jar build/libs/UrlShortener.jar

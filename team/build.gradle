@@ -9,12 +9,13 @@ buildscript {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.0.RELEASE")
     }
 }
-apply plugin: "spring-boot"
-apply plugin: 'eclipse-wtp'
-apply plugin: 'war'
 
 // This will apply the Java plugin to our project, which adds a number of tasks to our project.
 apply plugin: 'java'
+apply plugin: 'eclipse-wtp'
+apply plugin: "spring-boot"
+apply plugin: "war"
+
 
 eclipse {
     project {
@@ -46,11 +47,5 @@ dependencies {
 }
 
 war {
-    manifest {
-        attributes(
-            "Class-Path": '../WEB-INF/classes',
-            "Main-Class": 'urlshortener.zaratech.Application'
-        )
-    }
     baseName = 'UrlShortener'
 }
