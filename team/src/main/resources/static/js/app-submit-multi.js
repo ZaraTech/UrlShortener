@@ -23,9 +23,9 @@ $(document).ready(
                                 + msg[i].uri
                                 + "</a></div>"+
                                 "<div class='alert alert-success lead'><a target='_blank' href='"
-                                + msg[i].uri+"/+'"
+                                + msg[i].uri+"+'"
                                 + ">"
-                                + msg[i].uri+"/+"
+                                + msg[i].uri+"+"
                                 + "</a></div>");
                         }
                     },

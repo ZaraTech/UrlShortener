@@ -33,7 +33,7 @@ public class UrlShortnerWebController {
         return "multi";
     }
     
-    @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}/+", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}+", method = RequestMethod.GET)
     public String redirectTo(@PathVariable String id, Map<String, Object> model) {
         model.put("id", id);
         ShortURL url=getDetails(id);
