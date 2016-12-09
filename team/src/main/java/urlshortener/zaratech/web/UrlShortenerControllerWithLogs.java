@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import java.net.URI;
 import java.net.URISyntaxException;
+
 import javax.servlet.http.HttpServletRequest;
 
 import urlshortener.common.domain.ShortURL;
@@ -153,3 +154,4 @@ public class UrlShortenerControllerWithLogs extends UrlShortenerController {
 		return responseWithQR;	
 	}
 }
+

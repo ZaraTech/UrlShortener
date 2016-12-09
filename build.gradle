@@ -11,7 +11,69 @@ subprojects {
    targetCompatibility = 1.8
 
    repositories {
-	 mavenCentral()
-	 maven { url 'http://repo.spring.io/release' }
+     mavenCentral()
+     maven { url 'http://repo.spring.io/release' }
    }
+}
+
+apply plugin: 'java'
+apply plugin: 'war'
+
+def depList = []
+def depListNames = []
+def mainProjects = [':common',':team']
+
+task getList (){
+
+    dependsOn mainProjects.collect{ it+":compileJava"}
+    dependsOn ':common:jar'
+    
+    doFirst{
+
+        mainProjects.collect{ 
+            project(it).configurations.runtime.collect {
+                depList << it
+                depListNames << it.getName()
+            } 
+        }
+        
+        depList = depList.unique()
+        depListNames = depListNames.unique()
+    }
+}
+
+
+task copyToLib() {
+
+    dependsOn getList
+    
+    doFirst{
+        copy{
+            into "$buildDir/libs"
+            from depList
+        }
+    }
+}
+
+
+task oneJar(type: Jar)  {
+
+    dependsOn copyToLib
+    
+    doFirst{
+        manifest {
+            attributes(
+                "Main-Class": 'urlshortener.zaratech.Application',
+                "Class-Path": depListNames.collect { it }.join(' ')
+            )
+        }
+    }
+    baseName = 'UrlShortener'
+    from files(mainProjects.collect{ project(it).sourceSets.main.output })
+    from files("team/src/main/webapp")
+}
+
+task stage() {
+    
+    dependsOn oneJar
 }

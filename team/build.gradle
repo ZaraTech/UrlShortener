@@ -9,16 +9,13 @@ buildscript {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.0.RELEASE")
     }
 }
-apply plugin: "spring-boot"
-apply plugin: 'eclipse-wtp'
-apply plugin: 'war'
 
 // This will apply the Java plugin to our project, which adds a number of tasks to our project.
 apply plugin: 'java'
+apply plugin: 'eclipse-wtp'
+apply plugin: "spring-boot"
+apply plugin: "war"
 
-war {
-    baseName = 'UrlShortener'
-}
 
 eclipse {
     project {
@@ -47,4 +44,8 @@ dependencies {
     testCompile 'org.springframework.boot:spring-boot-starter-test'
     testCompile 'org.apache.httpcomponents:httpclient:4.5.2'
     testCompile 'com.jayway.jsonpath:json-path:2.2.0'
+}
+
+war {
+    baseName = 'UrlShortener'
 }

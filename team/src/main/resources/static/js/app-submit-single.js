@@ -19,11 +19,11 @@ $(document).ready(
                             + "'>"
                             + "Get QR here!"
                             + "</a></div>"+
-                            "<div class='alert alert-success lead'><a target='_blank' href='"
-                            + msg.uri+"/+'"
+                            "<h3>Show Details</h3><div class='alert alert-info lead'><a target='_blank' href='"
+                            + msg.uri+"+'"
                             + ">"
-                            + msg.uri+"/+"
-			    + "</a></div>");
+                            + msg.uri+"+"
+                            + "</a></div>" );
                     },
                     error : function() {
                         $("#result").html(
