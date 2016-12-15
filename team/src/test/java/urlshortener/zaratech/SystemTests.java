@@ -9,9 +9,11 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.util.*;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -26,10 +28,14 @@ import org.springframework.util.MultiValueMap;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
 
+import urlshortener.common.repository.*;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment= RANDOM_PORT)
 @DirtiesContext
 public class SystemTests {
+    @Autowired
+    protected ClickRepository clickRepository;
 
 	@Value("${local.server.port}")
 	private int port = 0;
@@ -86,4 +92,31 @@ public class SystemTests {
 		return new TestRestTemplate().postForEntity(
 				"http://localhost:" + this.port+"/link-single", parts, String.class);
 	}
+	@Test
+	public void testDetail() throws Exception {
+		ResponseEntity<String> entity = postLink("http://example.com/");
+		assertThat(entity.getStatusCode(), is(HttpStatus.CREATED));
+		assertThat(entity.getHeaders().getLocation(), is(new URI("http://localhost:"+ this.port+"/f684a3c4")));
+		assertThat(entity.getHeaders().getContentType(), is(new MediaType("application", "json", Charset.forName("UTF-8"))));
+		ReadContext rc = JsonPath.parse(entity.getBody());
+        String fecha=getDate();
+		assertThat(rc.read("$.created").toString(), is(fecha));
+        assertThat(clickRepository.clicksByHash(rc.read("$.hash").toString()).toString(), is("0"));
+        entity = new TestRestTemplate().getForEntity(
+                "http://localhost:" + this.port
+                        + "/f684a3c4", String.class);
+        entity = new TestRestTemplate().getForEntity(
+                "http://localhost:" + this.port
+                        + "/f684a3c4", String.class);
+        assertThat(clickRepository.clicksByHash(rc.read("$.hash").toString()).toString(), is("2"));
+
+	}
+	private String getDate(){
+        Calendar date = Calendar.getInstance();
+        int year = date.get(Calendar.YEAR);
+        int month = date.get(Calendar.MONTH);
+        int day = date.get(Calendar.DAY_OF_MONTH);
+        String currentDate=Integer.toString(year)+"-"+Integer.toString(month+1)+"-"+Integer.toString(day);
+        return currentDate;
+    }
 }
