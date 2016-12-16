@@ -100,7 +100,9 @@ public class SystemTests {
 		assertThat(entity.getHeaders().getContentType(), is(new MediaType("application", "json", Charset.forName("UTF-8"))));
 		ReadContext rc = JsonPath.parse(entity.getBody());
         String fecha=getDate();
+		//Testing date detail
 		assertThat(rc.read("$.created").toString(), is(fecha));
+		//Testing clicks detail
         assertThat(clickRepository.clicksByHash(rc.read("$.hash").toString()).toString(), is("0"));
         entity = new TestRestTemplate().getForEntity(
                 "http://localhost:" + this.port
@@ -111,6 +113,9 @@ public class SystemTests {
         assertThat(clickRepository.clicksByHash(rc.read("$.hash").toString()).toString(), is("2"));
 
 	}
+	/*
+	* Private method that return a string with the current date
+	* */
 	private String getDate(){
         Calendar date = Calendar.getInstance();
         int year = date.get(Calendar.YEAR);
