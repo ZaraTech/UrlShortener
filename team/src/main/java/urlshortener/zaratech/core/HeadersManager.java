@@ -1,34 +1,39 @@
 package urlshortener.zaratech.core;
 
-import java.util.Map;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import urlshortener.common.domain.ShortURL;
 import urlshortener.common.repository.ClickRepository;
 import urlshortener.common.repository.ShortURLRepository;
+import urlshortener.zaratech.domain.UrlDetails;
 
+@Component
 public class HeadersManager {
 
-	@Autowired
-	protected static ShortURLRepository shortURLRepository;
-	@Autowired
-	protected static ClickRepository clickRepository;
-	
-	public static void fillModel(String id, Map<String, Object> model){
-		model.put("id", id);
-        ShortURL url=getDetails(id);
-        Long clicks=getClickDetails(id);
-        model.put("date",url.getCreated().toString());
-        model.put("target",url.getTarget());
-        model.put("clicks",clicks.toString());
-	}
+    private final Logger logger = LoggerFactory.getLogger(HeadersManager.class);
 
-	private static ShortURL getDetails(String id){
-		return shortURLRepository.findByKey(id);
-	}
-	
-	private static Long getClickDetails(String id){
-		return clickRepository.clicksByHash(id);
-	}
+    @Autowired
+    protected ShortURLRepository shortURLRepository;
+
+    @Autowired
+    protected ClickRepository clickRepository;
+
+    public UrlDetails getDetails(String id) {
+
+        ShortURL url = getUrlDetails(id);
+        Long clicks = getClickDetails(id);
+
+        return new UrlDetails(id, url.getTarget(), url.getCreated(), clicks);
+    }
+
+    private ShortURL getUrlDetails(String id) {
+        return shortURLRepository.findByKey(id);
+    }
+
+    private Long getClickDetails(String id) {
+        return clickRepository.clicksByHash(id);
+    }
 }
