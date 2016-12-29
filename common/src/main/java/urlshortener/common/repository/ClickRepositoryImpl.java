@@ -163,4 +163,14 @@ public class ClickRepositoryImpl implements ClickRepository {
 		return -1L;
 	}
 
+	@Override
+	public Long visitorsByHash(String hash) {
+		try {
+			return jdbc
+					.queryForObject("select count(distinct ip) from click where hash = ?", new Object[]{hash}, Long.class);
+		} catch (Exception e) {
+			log.debug("When counting hash "+hash, e);
+		}
+		return -1L;
+	}
 }

@@ -49,7 +49,10 @@
 					 Date Creation ${date}
 				</p>
 				<p>
-					URI destination ${target} with ${clicks} clicks
+					URI destination ${target} with ${clicks} clicks and ${visitors} unique visitors
+				</p>
+				<p>
+					Source IP ${ip}
 				</p>
 			</div>
 		</div>
