@@ -51,17 +51,6 @@
 				<p>
 					URI destination ${target} with ${clicks} clicks and ${visitors} unique visitors
 				</p>
-				<p>
-					Source IP ${ip}
-				</p>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-lg-12 text-center">
-				<div class="col-sm-offset-4 col-sm-4 text-center">
-					<br />
-					<div id="result" />
-				</div>
 			</div>
 		</div>
 	</div>
