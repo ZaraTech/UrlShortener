@@ -25,8 +25,8 @@ public class HeadersManager {
 
         ShortURL url = getUrlDetails(id);
         Long clicks = getClickDetails(id);
-
-        return new UrlDetails(id, url.getTarget(), url.getCreated(), clicks);
+        Long visitors=getVisitors(id);
+        return new UrlDetails(id, url.getTarget(), url.getCreated(), clicks,visitors);
     }
 
     private ShortURL getUrlDetails(String id) {
@@ -35,5 +35,9 @@ public class HeadersManager {
 
     private Long getClickDetails(String id) {
         return clickRepository.clicksByHash(id);
+    }
+
+    private Long getVisitors(String id) {
+        return clickRepository.visitorsByHash(id);
     }
 }

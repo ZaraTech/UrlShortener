@@ -37,8 +37,8 @@ public class UrlShortnerWebController {
         model.put("date", details.getDate().toString());
         model.put("target", details.getTarget());
         model.put("clicks", details.getClicks().toString());
-
+        model.put("visitors", details.getVisitors());
         return "details";
     }
-
+    
 }

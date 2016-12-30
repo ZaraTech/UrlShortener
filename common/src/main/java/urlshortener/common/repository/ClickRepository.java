@@ -10,6 +10,8 @@ public interface ClickRepository {
 
 	Long clicksByHash(String hash);
 
+	Long visitorsByHash(String hash);
+
 	Click save(Click cl);
 
 	void update(Click cl);
