@@ -9,6 +9,9 @@ import urlshortener.common.domain.ShortURL;
 import urlshortener.common.repository.ClickRepository;
 import urlshortener.common.repository.ShortURLRepository;
 import urlshortener.zaratech.domain.UrlDetails;
+import urlshortener.zaratech.domain.UserAgentDetails;
+import net.sf.uadetector.*;
+import net.sf.uadetector.service.UADetectorServiceFactory;
 
 @Component
 public class HeadersManager {
@@ -25,8 +28,20 @@ public class HeadersManager {
 
         ShortURL url = getUrlDetails(id);
         Long clicks = getClickDetails(id);
-        Long visitors=getVisitors(id);
-        return new UrlDetails(id, url.getTarget(), url.getCreated(), clicks,visitors);
+        Long visitors = getVisitors(id);
+        return new UrlDetails(id, url.getTarget(), url.getCreated(), clicks, visitors);
+    }
+
+    public UserAgentDetails getUA(String agentStr) {
+
+        UserAgentStringParser parser = UADetectorServiceFactory.getResourceModuleParser();
+
+        ReadableUserAgent agent = parser.parse(agentStr);
+
+        VersionNumber browserVers = agent.getVersionNumber();
+        OperatingSystem os = agent.getOperatingSystem();
+
+        return new UserAgentDetails(agent.getName(), browserVers.toVersionString(), os.getName());
     }
 
     private ShortURL getUrlDetails(String id) {
