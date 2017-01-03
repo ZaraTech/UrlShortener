@@ -127,7 +127,7 @@ public class UrlShortenerController {
                 String[] urls = line.split(",");
                 for (String url : urls) {
                     if (!url.trim().equals("")) {
-                        list.addLast(url);
+                        list.addLast(url.trim());
                     }
                 }
             }
