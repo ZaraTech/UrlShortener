@@ -44,6 +44,8 @@ dependencies {
     testCompile 'org.springframework.boot:spring-boot-starter-test'
     testCompile 'org.apache.httpcomponents:httpclient:4.5.2'
     testCompile 'com.jayway.jsonpath:json-path:2.2.0'
+    
+    compile 'net.sf.uadetector:uadetector-resources:2014.10'
 }
 
 war {
