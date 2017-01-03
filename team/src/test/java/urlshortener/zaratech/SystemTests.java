@@ -7,6 +7,9 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -17,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -123,5 +128,73 @@ public class SystemTests {
         int day = date.get(Calendar.DAY_OF_MONTH);
         String currentDate=Integer.toString(year)+"-"+Integer.toString(month+1)+"-"+Integer.toString(day);
         return currentDate;
+    }
+	
+	@Test
+	public void testMultiUpload() throws Exception {
+	    
+	    ResponseEntity<String> postResp = postFile();
+	    
+	    // test the URI creation
+	    assertThat(postResp.getStatusCode(), is(HttpStatus.CREATED));
+	    
+	    // test first URI --> http://example.com/
+        ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
+                "http://localhost:" + this.port
+                        + "/f684a3c4", String.class);
+        assertThat(entity.getStatusCode(), is(HttpStatus.TEMPORARY_REDIRECT));
+        assertThat(entity.getHeaders().getLocation(), is(new URI("http://example.com/")));
+        
+        
+        // test last URI --> http://example9.com/
+        entity = new TestRestTemplate().getForEntity(
+                "http://localhost:" + this.port
+                        + "/7a9e76ee", String.class);
+        assertThat(entity.getStatusCode(), is(HttpStatus.TEMPORARY_REDIRECT));
+        assertThat(entity.getHeaders().getLocation(), is(new URI("http://example9.com/")));
+	}
+	
+	/**
+	 * Post a CSV file to the 'link-multi' endpoint
+	 */
+	private ResponseEntity<String> postFile() {
+        MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+
+        parts.add("url", new FileSystemResource(generateCsvFile()));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        
+        return new TestRestTemplate().postForEntity(
+                "http://localhost:" + this.port+"/link-multi", parts, String.class);
+    }
+	
+	/**
+	 * Generate an example CSV file
+	 */
+	private File generateCsvFile() {
+        
+	    File csv = new File("test.csv");
+	    
+	    if(csv.exists()){
+	        csv.delete();
+	    }
+	    
+	    PrintWriter pw;
+        try {
+            pw = new PrintWriter(csv);
+            pw.println("http://example.com/, http://example2.com/, http://example3.com/");
+            pw.println("http://example4.com/, http://example5.com/, http://example6.com/");
+            pw.println("http://example7.com/, http://example8.com/, http://example9.com/");
+            
+            pw.flush();
+            pw.close();
+            
+            return csv;
+            
+        } catch (FileNotFoundException e) {
+            
+            return null;
+        }
     }
 }
