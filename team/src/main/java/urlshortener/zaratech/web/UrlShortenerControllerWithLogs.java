@@ -24,10 +24,10 @@ import urlshortener.zaratech.core.HeadersManager;
 import urlshortener.zaratech.core.QrManager;
 import urlshortener.zaratech.core.RedirectionManager;
 import urlshortener.zaratech.core.UploadManager;
-import urlshortener.zaratech.domain.TaskDetails;
+import urlshortener.zaratech.domain.UploadTaskData;
 import urlshortener.zaratech.domain.UrlDetails;
 import urlshortener.zaratech.scheduling.Scheduler;
-import urlshortener.zaratech.store.TaskDetailsStore;
+import urlshortener.zaratech.store.UploadTaskDataStore;
 
 @RestController
 public class UrlShortenerControllerWithLogs extends UrlShortenerController {
@@ -41,7 +41,7 @@ public class UrlShortenerControllerWithLogs extends UrlShortenerController {
     private Scheduler scheduler;
     
     @Autowired
-    private TaskDetailsStore tdStore;
+    private UploadTaskDataStore tdStore;
 
     @Override
     @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}", method = RequestMethod.GET)
@@ -105,15 +105,15 @@ public class UrlShortenerControllerWithLogs extends UrlShortenerController {
     }
 
     @RequestMapping(value = "/task/{id:.*}", produces = "application/json", method = RequestMethod.GET)
-    public ResponseEntity<TaskDetails> showTaskDetails(@PathVariable String id) {
+    public ResponseEntity<UploadTaskData> showTaskDetails(@PathVariable String id) {
 
         logger.info("Requested TASK progress for id '" + id + "'");
 
-        TaskDetails details = tdStore.find(id);
+        UploadTaskData details = tdStore.find(id);
         
         // TODO ERROR si no esta la task en cache
 
-        return new ResponseEntity<TaskDetails>(details, HttpStatus.OK);
+        return new ResponseEntity<UploadTaskData>(details, HttpStatus.OK);
     }
     
     @RequestMapping(value = "/task-start/{id:.*}", method = RequestMethod.GET)

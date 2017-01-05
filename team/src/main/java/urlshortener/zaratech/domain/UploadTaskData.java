@@ -8,7 +8,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class TaskDetails implements Serializable {
+public class UploadTaskData extends TaskData implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -16,35 +16,35 @@ public class TaskDetails implements Serializable {
     private static final String ERROR = "error";
     private static final String COMPLETED = "completed";
 
-    private HashMap<String, TaskComponents> urlsMap;
+    private HashMap<String, UploadTaskDataStruct> urlsMap;
 
     @JsonProperty("urlList")
-    private List<TaskComponents> urls;
+    private List<UploadTaskDataStruct> urls;
 
     @JsonProperty("urlListId")
     private String id;
 
-    public TaskDetails(String id) {
-        urls = new LinkedList<TaskComponents>();
-        urlsMap = new HashMap<String, TaskComponents>();
+    public UploadTaskData(String id) {
+        urls = new LinkedList<UploadTaskDataStruct>();
+        urlsMap = new HashMap<String, UploadTaskDataStruct>();
         this.id = id;
     }
 
     public void addUrl(String url) {
 
-        TaskComponents tc = new TaskComponents(url, PENDING);
+        UploadTaskDataStruct tc = new UploadTaskDataStruct(url, PENDING);
 
         urls.add(tc);
         urlsMap.put(url, tc);
     }
 
     public void setUrlCompleted(String url) {
-        TaskComponents tc = urlsMap.get(url);
+        UploadTaskDataStruct tc = urlsMap.get(url);
         tc.setProgress(COMPLETED);
     }
 
     public void setUrlError(String url) {
-        TaskComponents tc = urlsMap.get(url);
+        UploadTaskDataStruct tc = urlsMap.get(url);
         tc.setProgress(ERROR);
     }
 
@@ -58,7 +58,7 @@ public class TaskDetails implements Serializable {
 
         List<String> resp = new LinkedList<String>();
 
-        for (TaskComponents tc : urls) {
+        for (UploadTaskDataStruct tc : urls) {
             resp.add(tc.getUrl());
         }
 
@@ -81,7 +81,7 @@ public class TaskDetails implements Serializable {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        TaskDetails other = (TaskDetails) obj;
+        UploadTaskData other = (UploadTaskData) obj;
         if (id == null) {
             if (other.id != null)
                 return false;

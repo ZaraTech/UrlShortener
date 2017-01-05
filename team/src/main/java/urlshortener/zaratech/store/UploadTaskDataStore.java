@@ -4,31 +4,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-import urlshortener.zaratech.domain.TaskDetails;
+import urlshortener.zaratech.domain.UploadTaskData;
 
 @Component
-public class TaskDetailsStore {
+public class UploadTaskDataStore implements RedisStore<UploadTaskData>{
 
     @Autowired
-    private RedisTemplate<String, TaskDetails> redisTemplate;
+    private RedisTemplate<String, UploadTaskData> redisTemplate;
     
     private static String TASK_DETAILS_KEY = "TaskDetails";
 
-    public RedisTemplate<String, TaskDetails> getRedisTemplate()
+    @Override
+    public RedisTemplate<String, UploadTaskData> getRedisTemplate()
     {
             return redisTemplate;
     }
 
-    public void save(TaskDetails TaskDetails)
+    @Override
+    public void save(UploadTaskData TaskDetails)
     {
         this.redisTemplate.opsForHash().put(TASK_DETAILS_KEY, TaskDetails.getId(), TaskDetails);
     }
 
-    public TaskDetails find(String id)
+    @Override
+    public UploadTaskData find(String id)
     {
-        return (TaskDetails)this.redisTemplate.opsForHash().get(TASK_DETAILS_KEY, id);
+        return (UploadTaskData)this.redisTemplate.opsForHash().get(TASK_DETAILS_KEY, id);
     }
-
+    
+    @Override
     public void delete(String id)
     {
         this.redisTemplate.opsForHash().delete(TASK_DETAILS_KEY,id);  

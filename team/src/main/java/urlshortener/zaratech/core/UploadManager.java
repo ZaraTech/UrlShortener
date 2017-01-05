@@ -1,15 +1,15 @@
 package urlshortener.zaratech.core;
 
-import urlshortener.zaratech.domain.TaskDetails;
+import urlshortener.zaratech.domain.UploadTaskData;
 import urlshortener.zaratech.scheduling.Scheduler;
 import urlshortener.zaratech.scheduling.UploadTask;
-import urlshortener.zaratech.store.TaskDetailsStore;
+import urlshortener.zaratech.store.UploadTaskDataStore;
 
 public class UploadManager {
 
     // TODO BORRAR
-    public static void startTask(Scheduler scheduler, TaskDetailsStore tdStore, String id){
-        TaskDetails details = new TaskDetails(id);
+    public static void startTask(Scheduler scheduler, UploadTaskDataStore tdStore, String id){
+        UploadTaskData details = new UploadTaskData(id);
 
         details.addUrl("http://example1.com");
         details.addUrl("http://example2.com");

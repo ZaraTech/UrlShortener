@@ -13,7 +13,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import urlshortener.zaratech.domain.TaskDetails;
+import urlshortener.zaratech.domain.UploadTaskData;
 import urlshortener.zaratech.store.RedisSrv;
 
 @SuppressWarnings("deprecation")
@@ -52,8 +52,8 @@ public class Application extends SpringBootServletInitializer {
     }
 
     @Bean
-    public RedisTemplate<String, TaskDetails> redisTemplate(RedisConnectionFactory cf) {
-        RedisTemplate<String, TaskDetails> redisTemplate = new RedisTemplate<String, TaskDetails>();
+    public RedisTemplate<String, UploadTaskData> redisTemplate(RedisConnectionFactory cf) {
+        RedisTemplate<String, UploadTaskData> redisTemplate = new RedisTemplate<String, UploadTaskData>();
         redisTemplate.setConnectionFactory(cf);
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new StringRedisSerializer());

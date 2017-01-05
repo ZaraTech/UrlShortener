@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class TaskComponents implements Serializable {
+public class UploadTaskDataStruct implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -14,7 +14,7 @@ public class TaskComponents implements Serializable {
     @JsonProperty("progress")
     private String progress;
 
-    public TaskComponents(String url, String progress) {
+    public UploadTaskDataStruct(String url, String progress) {
         this.url = url;
         this.progress = progress;
     }
@@ -44,7 +44,7 @@ public class TaskComponents implements Serializable {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        TaskComponents other = (TaskComponents) obj;
+        UploadTaskDataStruct other = (UploadTaskDataStruct) obj;
         if (progress == null) {
             if (other.progress != null)
                 return false;

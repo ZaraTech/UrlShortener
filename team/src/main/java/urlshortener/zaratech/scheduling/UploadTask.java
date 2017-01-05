@@ -2,15 +2,15 @@ package urlshortener.zaratech.scheduling;
 
 import java.util.List;
 
-import urlshortener.zaratech.domain.TaskDetails;
-import urlshortener.zaratech.store.TaskDetailsStore;
+import urlshortener.zaratech.domain.UploadTaskData;
+import urlshortener.zaratech.store.UploadTaskDataStore;
 
 public class UploadTask implements Runnable{
     
-    private TaskDetails task;
-    private TaskDetailsStore tdStore;
+    private UploadTaskData task;
+    private UploadTaskDataStore tdStore;
     
-    public UploadTask(TaskDetails task, TaskDetailsStore tdStore) {
+    public UploadTask(UploadTaskData task, UploadTaskDataStore tdStore) {
         this.task = task;
         this.tdStore = tdStore;
     }
