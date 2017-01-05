@@ -1,5 +1,5 @@
 package urlshortener.zaratech.domain;
 
-public class TaskData {
+public abstract class TaskData {
 
 }

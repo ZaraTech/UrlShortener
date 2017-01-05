@@ -15,11 +15,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.LinkedList;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
 import urlshortener.common.domain.ShortURL;
-import urlshortener.common.web.UrlShortenerController;
+import urlshortener.common.repository.ClickRepository;
+import urlshortener.common.repository.ShortURLRepository;
 import urlshortener.zaratech.core.HeadersManager;
 import urlshortener.zaratech.core.QrManager;
 import urlshortener.zaratech.core.RedirectionManager;
@@ -30,27 +33,39 @@ import urlshortener.zaratech.scheduling.Scheduler;
 import urlshortener.zaratech.store.UploadTaskDataStore;
 
 @RestController
-public class UrlShortenerControllerWithLogs extends UrlShortenerController {
+public class UrlShortenerControllerWithLogs {
 
     private static final Logger logger = LoggerFactory.getLogger(UrlShortenerControllerWithLogs.class);
 
     @Autowired
+    protected ShortURLRepository shortURLRepository;
+
+    @Autowired
+    protected ClickRepository clickRepository;
+
+    @Autowired
     private HeadersManager headersManager;
-    
+
     @Autowired
     private Scheduler scheduler;
-    
+
     @Autowired
     private UploadTaskDataStore tdStore;
 
-    @Override
     @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}", method = RequestMethod.GET)
     public ResponseEntity<?> redirectTo(@PathVariable String id, HttpServletRequest request) {
         logger.info("Requested redirection with hash " + id);
-        return super.redirectTo(id, request);
+
+        ShortURL l = shortURLRepository.findByKey(id);
+        if (l != null) {
+            UploadManager.createAndSaveClick(clickRepository, id, UploadManager.extractIP(request));
+            return UploadManager.createSuccessfulRedirectToResponse(l);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
-    @Override
+    @RequestMapping(value = "/link-single", method = RequestMethod.POST)
     public ResponseEntity<ShortURL> singleShortener(@RequestParam("url") String url,
             @RequestParam(value = "sponsor", required = false) String sponsor, HttpServletRequest request) {
         logger.info("Requested new short for uri " + url);
@@ -61,21 +76,52 @@ public class UrlShortenerControllerWithLogs extends UrlShortenerController {
 
             logger.info("Uri redirects to itself, short url can't be created");
             response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
         } else {
 
             logger.info("Uri doesn't redirects to itself. Creating short url ...");
-            response = QrManager.getUriWithQR(super.singleShortener(url, sponsor, request));
+
+            ShortURL su = UploadManager.createAndSaveIfValid(shortURLRepository, url, sponsor,
+                    UUID.randomUUID().toString(), UploadManager.extractIP(request));
+
+            if (su != null) {
+                HttpHeaders h = new HttpHeaders();
+                h.setLocation(su.getUri());
+
+                response = new ResponseEntity<>(su, h, HttpStatus.CREATED);
+            } else {
+                response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+
+            response = QrManager.getUriWithQR(response);
         }
 
         return response;
     }
 
-    @Override
+    @RequestMapping(value = "/link-multi", method = RequestMethod.POST)
     public ResponseEntity<ShortURL[]> multiShortener(@RequestParam("url") MultipartFile csvFile,
             @RequestParam(value = "sponsor", required = false) String sponsor, HttpServletRequest request) {
 
         logger.info("Requested new short for CSV file '" + csvFile.getOriginalFilename() + "'");
-        return super.multiShortener(csvFile, sponsor, request);
+        
+        LinkedList<String> urls = UploadManager.processFile(csvFile);
+
+        ShortURL[] su = new ShortURL[urls.size()];
+
+        if (UploadManager.validateUrlList(urls)) {
+            int i = 0;
+
+            for (String url : urls) {
+                su[i] = UploadManager.createAndSaveIfValid(shortURLRepository, url, sponsor, UUID.randomUUID().toString(), UploadManager.extractIP(request));
+                i++;
+            }
+
+            HttpHeaders h = new HttpHeaders();
+            return new ResponseEntity<>(su, h, HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}+", produces = "application/json", method = RequestMethod.GET)
@@ -110,12 +156,12 @@ public class UrlShortenerControllerWithLogs extends UrlShortenerController {
         logger.info("Requested TASK progress for id '" + id + "'");
 
         UploadTaskData details = tdStore.find(id);
-        
+
         // TODO ERROR si no esta la task en cache
 
         return new ResponseEntity<UploadTaskData>(details, HttpStatus.OK);
     }
-    
+
     @RequestMapping(value = "/task-start/{id:.*}", method = RequestMethod.GET)
     public ResponseEntity<?> startTask(@PathVariable String id) {
 
