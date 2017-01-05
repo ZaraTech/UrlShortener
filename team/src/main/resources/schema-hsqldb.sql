@@ -25,6 +25,8 @@ CREATE TABLE CLICK(
 	CREATED 	TIMESTAMP,					-- Creation date
 	REFERRER	VARCHAR(1024),				-- Traffic origin
 	BROWSER		VARCHAR(50),				-- Browser
+	VERSION		VARCHAR(50),				-- Version
+	OS		VARCHAR(50),				-- OS
 	PLATFORM	VARCHAR(50),				-- Platform
 	IP			VARCHAR(20),				-- IP
 	COUNTRY		VARCHAR(50)					-- Country

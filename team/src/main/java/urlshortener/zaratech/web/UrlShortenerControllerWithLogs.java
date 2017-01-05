@@ -27,6 +27,7 @@ import urlshortener.zaratech.core.HeadersManager;
 import urlshortener.zaratech.core.UploadManager;
 import urlshortener.zaratech.domain.UploadTaskData;
 import urlshortener.zaratech.domain.UrlDetails;
+import urlshortener.zaratech.domain.UserAgentDetails;
 import urlshortener.zaratech.scheduling.Scheduler;
 import urlshortener.zaratech.store.UploadTaskDataStore;
 
@@ -50,21 +51,21 @@ public class UrlShortenerControllerWithLogs {
     @Autowired
     private UploadTaskDataStore tdStore;
 
-    @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id:(?!link-single|link-multi).*}", method = RequestMethod.GET)
     public ResponseEntity<?> redirectTo(@PathVariable String id, HttpServletRequest request) {
-        logger.info("Requested redirection with hash " + id);
+        UserAgentDetails ua=headersManager.getUA(request.getHeader("User-Agent"));
 
         ShortURL l = shortURLRepository.findByKey(id);
         if (l != null) {
-            createAndSaveClick(id, UploadManager.extractIP(request));
+            createAndSaveClick(id, UploadManager.extractIP(request),ua.getBrowserName(),ua.getBrowserVersion(),ua.getOsName());
             return createSuccessfulRedirectToResponse(l);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    
-    private void createAndSaveClick(String hash, String ip) {
-        Click cl = new Click(null, hash, new Date(System.currentTimeMillis()), null, null, null, ip, null);
+
+    private void createAndSaveClick(String hash, String ip,String browser,String version,String os) {
+        Click cl = new Click(null, hash, new Date(System.currentTimeMillis()), null, browser,version,os, null, ip, null);
         cl = clickRepository.save(cl);
         logger.info(cl != null ? "[" + hash + "] saved with id [" + cl.getId() + "]" : "[" + hash + "] was not saved");
     }
