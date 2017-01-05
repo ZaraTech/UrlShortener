@@ -61,7 +61,7 @@ public class RedirectionManager {
 				throw new RedirectionException();
 					
 			} catch (IOException e2) {
-				logger.info("Failed request execution. Connection aborted.(" +e2.getMessage() + ")");
+				logger.info("Failed request execution. Connection aborted.");
 				throw new RedirectionException();
 			}
         } catch (URISyntaxException e) {
