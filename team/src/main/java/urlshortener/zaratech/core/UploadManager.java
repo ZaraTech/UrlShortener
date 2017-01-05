@@ -36,165 +36,165 @@ import urlshortener.zaratech.web.UrlShortenerControllerWithLogs;
 
 public class UploadManager {
 
-	private static final Logger logger = LoggerFactory.getLogger(UploadManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(UploadManager.class);
 
-	// TODO BORRAR
-	public static void startTask(Scheduler scheduler, UploadTaskDataStore tdStore, String id) {
-		UploadTaskData details = new UploadTaskData(id);
+    // TODO BORRAR
+    public static void startTask(Scheduler scheduler, UploadTaskDataStore tdStore, String id) {
+        UploadTaskData details = new UploadTaskData(id);
 
-		details.addUrl("http://example1.com");
-		details.addUrl("http://example2.com");
-		details.addUrl("http://example3.com");
-		details.addUrl("http://example4.com");
-		details.addUrl("http://example5.com");
-		details.addUrl("http://example6.com");
-		details.addUrl("http://example7.com");
-		details.addUrl("http://example8.com");
+        details.addUrl("http://example1.com");
+        details.addUrl("http://example2.com");
+        details.addUrl("http://example3.com");
+        details.addUrl("http://example4.com");
+        details.addUrl("http://example5.com");
+        details.addUrl("http://example6.com");
+        details.addUrl("http://example7.com");
+        details.addUrl("http://example8.com");
 
-		tdStore.save(details);
+        tdStore.save(details);
 
-		scheduler.newUploadTask(new UploadTask(details, tdStore));
-	}
+        scheduler.newUploadTask(new UploadTask(details, tdStore));
+    }
 
-	public static ResponseEntity<ShortURL> singleShort(ShortURLRepository shortURLRepository, String url,
-			HttpServletRequest request, String vCardFName, Boolean vCardCheckbox) {
+    public static ResponseEntity<ShortURL> singleShort(ShortURLRepository shortURLRepository, String url,
+            HttpServletRequest request, String vCardFName, Boolean vCardCheckbox, String errorRadio) {
 
-		ResponseEntity<ShortURL> response;
+        ResponseEntity<ShortURL> response;
 
-		try {
-			if (RedirectionManager.isRedirectedToSelf(url)) {
+        try {
+            if (RedirectionManager.isRedirectedToSelf(url)) {
 
-				logger.info("Uri redirects to itself, short url can't be created");
-				response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                logger.info("Uri redirects to itself, short url can't be created");
+                response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
-			} else {
+            } else {
 
-				logger.info("Uri doesn't redirects to itself. Creating short url ...");
+                logger.info("Uri doesn't redirects to itself. Creating short url ...");
 
-				ShortURL su = createAndSaveIfValid(shortURLRepository, url, UUID.randomUUID().toString(),
-						extractIP(request));
+                ShortURL su = createAndSaveIfValid(shortURLRepository, url, UUID.randomUUID().toString(),
+                        extractIP(request));
 
-				if (su != null) {
-					HttpHeaders h = new HttpHeaders();
-					h.setLocation(su.getUri());
-					su = QrManager.getUriWithQR(su, vCardFName, vCardCheckbox);
-					if (su != null) {
-						response = new ResponseEntity<>(su, h, HttpStatus.CREATED);
-					} else {
-						response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-					}
-				} else {
-					response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-				}
-			}
-		} catch (RedirectionException e) {
-			response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+                if (su != null) {
+                    HttpHeaders h = new HttpHeaders();
+                    h.setLocation(su.getUri());
+                    su = QrManager.getUriWithQR(su, vCardFName, vCardCheckbox, errorRadio);
+                    if (su != null) {
+                        response = new ResponseEntity<>(su, h, HttpStatus.CREATED);
+                    } else {
+                        response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
+                } else {
+                    response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                }
+            }
+        } catch (RedirectionException e) {
+            response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
-		return response;
-	}
+        return response;
+    }
 
-	public static ResponseEntity<ShortURL[]> MultiShortSync(ShortURLRepository shortURLRepository,
-			MultipartFile csvFile, HttpServletRequest request) {
+    public static ResponseEntity<ShortURL[]> MultiShortSync(ShortURLRepository shortURLRepository,
+            MultipartFile csvFile, HttpServletRequest request) {
 
-		LinkedList<String> urls = processFile(csvFile);
+        LinkedList<String> urls = processFile(csvFile);
 
-		ShortURL[] su = new ShortURL[urls.size()];
+        ShortURL[] su = new ShortURL[urls.size()];
 
-		if (validateUrlList(urls)) {
-			int i = 0;
+        if (validateUrlList(urls)) {
+            int i = 0;
 
-			for (String url : urls) {
-				try {
-					if (!RedirectionManager.isRedirectedToSelf(url)) {
+            for (String url : urls) {
+                try {
+                    if (!RedirectionManager.isRedirectedToSelf(url)) {
 
-						ShortURL tmpSu = createAndSaveIfValid(shortURLRepository, url, UUID.randomUUID().toString(),
-								extractIP(request));
+                        ShortURL tmpSu = createAndSaveIfValid(shortURLRepository, url, UUID.randomUUID().toString(),
+                                extractIP(request));
 
-						ShortURL tmpSu2 = QrManager.getUriWithQR(tmpSu);
+                        ShortURL tmpSu2 = QrManager.getUriWithQR(tmpSu);
 
-						if (tmpSu2 != null) {
-							su[i] = tmpSu2;
+                        if (tmpSu2 != null) {
+                            su[i] = tmpSu2;
 
-						} else {
-							su[i] = tmpSu;
-						}
+                        } else {
+                            su[i] = tmpSu;
+                        }
 
-						i++;
-					}
-				} catch (RedirectionException e) {
-					return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-				}
-			}
+                        i++;
+                    }
+                } catch (RedirectionException e) {
+                    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+            }
 
-			HttpHeaders h = new HttpHeaders();
-			return new ResponseEntity<>(su, h, HttpStatus.CREATED);
-		} else {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		}
-	}
+            HttpHeaders h = new HttpHeaders();
+            return new ResponseEntity<>(su, h, HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
 
-	public static String extractIP(HttpServletRequest request) {
-		return request.getRemoteAddr();
-	}
+    public static String extractIP(HttpServletRequest request) {
+        return request.getRemoteAddr();
+    }
 
-	/**
-	 * Returns all the comma-separated URLs contained in the CSV file
-	 */
-	private static LinkedList<String> processFile(MultipartFile csvFile) {
+    /**
+     * Returns all the comma-separated URLs contained in the CSV file
+     */
+    private static LinkedList<String> processFile(MultipartFile csvFile) {
 
-		InputStream is;
+        InputStream is;
 
-		try {
-			is = csvFile.getInputStream();
-			BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        try {
+            is = csvFile.getInputStream();
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
-			String line;
-			LinkedList<String> list = new LinkedList<String>();
-			while ((line = br.readLine()) != null) {
-				String[] urls = line.split(",");
-				for (String url : urls) {
-					if (!url.trim().equals("")) {
-						list.addLast(url.trim());
-					}
-				}
-			}
+            String line;
+            LinkedList<String> list = new LinkedList<String>();
+            while ((line = br.readLine()) != null) {
+                String[] urls = line.split(",");
+                for (String url : urls) {
+                    if (!url.trim().equals("")) {
+                        list.addLast(url.trim());
+                    }
+                }
+            }
 
-			return list;
-		} catch (IOException e) {
-			return null;
-		}
-	}
+            return list;
+        } catch (IOException e) {
+            return null;
+        }
+    }
 
-	/**
-	 * Returns true if, and only if, all URLs are valid
-	 */
-	private static boolean validateUrlList(LinkedList<String> urls) {
+    /**
+     * Returns true if, and only if, all URLs are valid
+     */
+    private static boolean validateUrlList(LinkedList<String> urls) {
 
-		boolean resp = true;
+        boolean resp = true;
 
-		for (String url : urls) {
-			resp &= isValid(url);
-		}
+        for (String url : urls) {
+            resp &= isValid(url);
+        }
 
-		return resp;
-	}
+        return resp;
+    }
 
-	private static ShortURL createAndSaveIfValid(ShortURLRepository shortURLRepository, String url, String owner,
-			String ip) {
-		if (isValid(url)) {
-			String id = Hashing.murmur3_32().hashString(url, StandardCharsets.UTF_8).toString();
-			ShortURL su = new ShortURL(id, url,
-					linkTo(methodOn(UrlShortenerController.class).redirectTo(id, null)).toUri(), null,
-					new Date(System.currentTimeMillis()), owner, HttpStatus.TEMPORARY_REDIRECT.value(), true, ip, null);
-			return shortURLRepository.save(su);
-		} else {
-			return null;
-		}
-	}
+    private static ShortURL createAndSaveIfValid(ShortURLRepository shortURLRepository, String url, String owner,
+            String ip) {
+        if (isValid(url)) {
+            String id = Hashing.murmur3_32().hashString(url, StandardCharsets.UTF_8).toString();
+            ShortURL su = new ShortURL(id, url,
+                    linkTo(methodOn(UrlShortenerController.class).redirectTo(id, null)).toUri(), null,
+                    new Date(System.currentTimeMillis()), owner, HttpStatus.TEMPORARY_REDIRECT.value(), true, ip, null);
+            return shortURLRepository.save(su);
+        } else {
+            return null;
+        }
+    }
 
-	private static boolean isValid(String url) {
-		UrlValidator urlValidator = new UrlValidator(new String[] { "http", "https" });
-		return urlValidator.isValid(url);
-	}
+    private static boolean isValid(String url) {
+        UrlValidator urlValidator = new UrlValidator(new String[] { "http", "https" });
+        return urlValidator.isValid(url);
+    }
 }

@@ -55,10 +55,23 @@
                         <span class="input-group-btn"><button
                                 class="btn btn-lg btn-primary" type="submit">Short me!</button></span>
                     </div>
+                <!-- Error correction level -->
+                <p></p>
+                <p>Select the desired error correction level for QR code (allows recovery of up to % data lost)</p>
+                <input type="radio" id="errorLRadio" name="errorRadio" checked="checked" value="L"/>
+		        <label for="errorLRadio">L (7%)</label>
+		        <input type="radio" id="errorMRadio" name="errorRadio" value="M"/>
+		        <label for="errorMRadio">M (15%)</label>
+		        <input type="radio" id="errorQRadio" name="errorRadio" value="Q"/>
+		        <label for="errorQRadio">Q(25%)</label>
+		        <input type="radio" id="errorHRadio" name="errorRadio" value="H"/>
+		        <label for="errorHRadio">H (30%)</label>
+		        <!-- Error correction level END -->
+		        
                 <p></p>
                 <!-- VCard INFORMATION -->
             	<input type="checkbox" id="vCardCheckbox" name="vCardCheckbox"/>
-            	<label for="VCardCheckbox">VCard Information</label>
+            	<label for="VCardCheckbox">Add VCard Information</label>
             	<div id="messageContainer">
 					<div class="input-group input-group-lg col-sm-offset-4 col-sm-4">
                      	<input type="text" class="center-block form-control input-lg"
