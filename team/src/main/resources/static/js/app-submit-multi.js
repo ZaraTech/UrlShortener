@@ -14,20 +14,38 @@ $(document).ready(
                     success : function(msg) {
 
                         var len = msg.length;
-
-                        for(var i = 0; i < len; i++){
-                            $("#result").append(
-                                "<div class='alert alert-success lead'><a target='_blank' href='"
-                                + msg[i].uri
-                                + "'>"
-                                + msg[i].uri
-                                + "</a></div>"+
-                                "<div class='alert alert-success lead'><a target='_blank' href='"
-                                + msg[i].uri+"+'"
-                                + ">"
-                                + msg[i].uri+"+"
-                                + "</a></div>");
+                        var data="";
+                        
+						for(var i = 0; i < len; i++){
+                            data +=
+                                "<tr>"
+                                + "<td>"
+                                + "<a target='_blank' href='" + msg[i].target + "'><span>" + msg[i].target + "</span></a>"
+                                + "</td>"
+                                + "<td>"
+                                + "<a target='_blank' href='" + msg[i].uri + "'>" + msg[i].hash + "</a>"
+                                + "</td>"
+                                + "<td>"
+                                + "<a target='_blank' href='" + msg[i].qr + "'>view QR</a>"
+                                + "</td>"
+                                + "<td>"
+                                + "<a target='_blank' href='" + msg[i].uri + "+'>view details</a>"
+                                + "</td>"
+                                + "</tr>";
                         }
+                        
+                        $("#result").html(
+                            "<div class='text-left'><table class='table table-hover table-bordered'>"
+                            + "<thead>"
+							+ "<tr>"
+							+ "<th>Target URL</th>"
+							+ "<th>Short URL</th>"
+							+ "<th>QR</th>"
+							+ "<th>Details</th>"
+							+ "</tr>"
+							+ "</thead><tbody>"
+							+ data
+							+ "</tbody></table></div>");
                     },
                     error : function() {
                         $("#result").html(

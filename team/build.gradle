@@ -46,6 +46,9 @@ dependencies {
     testCompile 'com.jayway.jsonpath:json-path:2.2.0'
     
     compile 'net.sf.uadetector:uadetector-resources:2014.10'
+    compile 'com.github.kstyrc:embedded-redis:0.6'
+    compile 'org.springframework.data:spring-data-redis:1.7.6.RELEASE'
+    compile 'redis.clients:jedis:2.9.0'
 }
 
 war {

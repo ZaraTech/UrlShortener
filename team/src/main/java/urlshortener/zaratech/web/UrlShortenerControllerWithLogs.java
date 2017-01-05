@@ -15,58 +15,80 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.sql.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
+import urlshortener.common.domain.Click;
 import urlshortener.common.domain.ShortURL;
-import urlshortener.common.web.UrlShortenerController;
+import urlshortener.common.repository.ClickRepository;
+import urlshortener.common.repository.ShortURLRepository;
 import urlshortener.zaratech.core.HeadersManager;
-import urlshortener.zaratech.core.QrManager;
-import urlshortener.zaratech.core.RedirectionManager;
+import urlshortener.zaratech.core.UploadManager;
+import urlshortener.zaratech.domain.UploadTaskData;
 import urlshortener.zaratech.domain.UrlDetails;
+import urlshortener.zaratech.scheduling.Scheduler;
+import urlshortener.zaratech.store.UploadTaskDataStore;
 
 @RestController
-public class UrlShortenerControllerWithLogs extends UrlShortenerController {
+public class UrlShortenerControllerWithLogs {
 
     private static final Logger logger = LoggerFactory.getLogger(UrlShortenerControllerWithLogs.class);
 
     @Autowired
+    protected ShortURLRepository shortURLRepository;
+
+    @Autowired
+    protected ClickRepository clickRepository;
+
+    @Autowired
     private HeadersManager headersManager;
 
-    @Override
-    @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}", method = RequestMethod.GET)
+    @Autowired
+    private Scheduler scheduler;
 
+    @Autowired
+    private UploadTaskDataStore tdStore;
+
+    @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}", method = RequestMethod.GET)
     public ResponseEntity<?> redirectTo(@PathVariable String id, HttpServletRequest request) {
         logger.info("Requested redirection with hash " + id);
-        return super.redirectTo(id, request);
+
+        ShortURL l = shortURLRepository.findByKey(id);
+        if (l != null) {
+            createAndSaveClick(id, UploadManager.extractIP(request));
+            return createSuccessfulRedirectToResponse(l);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    
+    private void createAndSaveClick(String hash, String ip) {
+        Click cl = new Click(null, hash, new Date(System.currentTimeMillis()), null, null, null, ip, null);
+        cl = clickRepository.save(cl);
+        logger.info(cl != null ? "[" + hash + "] saved with id [" + cl.getId() + "]" : "[" + hash + "] was not saved");
+    }
+    
+    private ResponseEntity<?> createSuccessfulRedirectToResponse(ShortURL l) {
+        HttpHeaders h = new HttpHeaders();
+        h.setLocation(URI.create(l.getTarget()));
+        return new ResponseEntity<>(h, HttpStatus.valueOf(l.getMode()));
     }
 
-    @Override
-    public ResponseEntity<ShortURL> singleShortener(@RequestParam("url") String url,
-            @RequestParam(value = "sponsor", required = false) String sponsor, HttpServletRequest request) {
+    @RequestMapping(value = "/link-single", method = RequestMethod.POST)
+    public ResponseEntity<ShortURL> singleShortener(@RequestParam("url") String url, HttpServletRequest request) {
         logger.info("Requested new short for uri " + url);
 
-        ResponseEntity<ShortURL> response;
-
-        if (RedirectionManager.isRedirectedToSelf(url)) {
-
-            logger.info("Uri redirects to itself, short url can't be created");
-            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } else {
-
-            logger.info("Uri doesn't redirects to itself. Creating short url ...");
-            response = QrManager.getUriWithQR(super.singleShortener(url, sponsor, request));
-        }
-
-        return response;
+        return UploadManager.singleShort(shortURLRepository, url, request);
     }
 
-    @Override
+    @RequestMapping(value = "/link-multi", method = RequestMethod.POST)
     public ResponseEntity<ShortURL[]> multiShortener(@RequestParam("url") MultipartFile csvFile,
             @RequestParam(value = "sponsor", required = false) String sponsor, HttpServletRequest request) {
 
         logger.info("Requested new short for CSV file '" + csvFile.getOriginalFilename() + "'");
-        return super.multiShortener(csvFile, sponsor, request);
+        
+        return UploadManager.MultiShortSync(shortURLRepository, csvFile, request);
     }
 
     @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}+", produces = "application/json", method = RequestMethod.GET)
@@ -93,6 +115,28 @@ public class UrlShortenerControllerWithLogs extends UrlShortenerController {
         } catch (URISyntaxException e) {
             return new ResponseEntity<UrlDetails>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @RequestMapping(value = "/task/{id:.*}", produces = "application/json", method = RequestMethod.GET)
+    public ResponseEntity<UploadTaskData> showTaskDetails(@PathVariable String id) {
+
+        logger.info("Requested TASK progress for id '" + id + "'");
+
+        UploadTaskData details = tdStore.find(id);
+
+        // TODO ERROR si no esta la task en cache
+
+        return new ResponseEntity<UploadTaskData>(details, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/task-start/{id:.*}", method = RequestMethod.GET)
+    public ResponseEntity<?> startTask(@PathVariable String id) {
+
+        logger.info("Requested START TASK progress for id '" + id + "'");
+
+        UploadManager.startTask(scheduler, tdStore, id);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

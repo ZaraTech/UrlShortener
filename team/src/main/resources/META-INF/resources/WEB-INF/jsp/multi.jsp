@@ -60,7 +60,7 @@
             <div class="col-lg-12 text-center">
                 <div class="col-sm-offset-4 col-sm-4 text-center">
                     <br />
-                    <div id="result" />
+                    <div id="result" />                    
                 </div>
             </div>
         </div>
