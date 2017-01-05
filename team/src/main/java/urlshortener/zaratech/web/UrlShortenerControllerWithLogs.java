@@ -23,7 +23,11 @@ import urlshortener.common.web.UrlShortenerController;
 import urlshortener.zaratech.core.HeadersManager;
 import urlshortener.zaratech.core.QrManager;
 import urlshortener.zaratech.core.RedirectionManager;
+import urlshortener.zaratech.core.UploadManager;
+import urlshortener.zaratech.domain.TaskDetails;
 import urlshortener.zaratech.domain.UrlDetails;
+import urlshortener.zaratech.scheduling.Scheduler;
+import urlshortener.zaratech.store.TaskDetailsStore;
 
 @RestController
 public class UrlShortenerControllerWithLogs extends UrlShortenerController {
@@ -32,10 +36,15 @@ public class UrlShortenerControllerWithLogs extends UrlShortenerController {
 
     @Autowired
     private HeadersManager headersManager;
+    
+    @Autowired
+    private Scheduler scheduler;
+    
+    @Autowired
+    private TaskDetailsStore tdStore;
 
     @Override
     @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}", method = RequestMethod.GET)
-
     public ResponseEntity<?> redirectTo(@PathVariable String id, HttpServletRequest request) {
         logger.info("Requested redirection with hash " + id);
         return super.redirectTo(id, request);
@@ -93,6 +102,28 @@ public class UrlShortenerControllerWithLogs extends UrlShortenerController {
         } catch (URISyntaxException e) {
             return new ResponseEntity<UrlDetails>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @RequestMapping(value = "/task/{id:.*}", produces = "application/json", method = RequestMethod.GET)
+    public ResponseEntity<TaskDetails> showTaskDetails(@PathVariable String id) {
+
+        logger.info("Requested TASK progress for id '" + id + "'");
+
+        TaskDetails details = tdStore.find(id);
+        
+        // TODO ERROR si no esta la task en cache
+
+        return new ResponseEntity<TaskDetails>(details, HttpStatus.OK);
+    }
+    
+    @RequestMapping(value = "/task-start/{id:.*}", method = RequestMethod.GET)
+    public ResponseEntity<?> startTask(@PathVariable String id) {
+
+        logger.info("Requested START TASK progress for id '" + id + "'");
+
+        UploadManager.startTask(scheduler, tdStore, id);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }
