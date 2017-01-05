@@ -24,8 +24,6 @@ import urlshortener.common.domain.ShortURL;
 import urlshortener.common.repository.ClickRepository;
 import urlshortener.common.repository.ShortURLRepository;
 import urlshortener.zaratech.core.HeadersManager;
-import urlshortener.zaratech.core.QrManager;
-import urlshortener.zaratech.core.RedirectionManager;
 import urlshortener.zaratech.core.UploadManager;
 import urlshortener.zaratech.domain.UploadTaskData;
 import urlshortener.zaratech.domain.UrlDetails;

@@ -35,7 +35,7 @@ import urlshortener.zaratech.web.UrlShortenerControllerWithLogs;
 
 public class UploadManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(UrlShortenerControllerWithLogs.class);
+    private static final Logger logger = LoggerFactory.getLogger(UploadManager.class);
 
     // TODO BORRAR
     public static void startTask(Scheduler scheduler, UploadTaskDataStore tdStore, String id) {
