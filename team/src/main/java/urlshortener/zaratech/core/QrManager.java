@@ -20,13 +20,21 @@ public class QrManager {
      * @return HTTP response with QR code assigned
      */
     public static ShortURL getUriWithQR(ShortURL body) {
-
+    	
+		//TODO en vez de ShortURL deberia devolver:
+		//	JSON --> si OK (URL acortada / URL QR)
+		//	Error --> si falla
+		//Crear una clase con la info que interesa y no todo 
+		
+		//TODO Gestionar el incremento de params mediante RequestMapping, RequestParam en vez de 
+		//enviar params sueltos. El controlador tiene el mapeo entre peticiones web y
+		//params y se lo pasa a la logica de negocio quien comprueba que estan los
+		//params necesarios (si no, excepcion)
         try {
             URI uri = body.getUri();
             logger.info("Requested new QR for uri " + uri.toString());
 
-            // API QRserver
-            // http://api.qrserver.com/v1/create-qr-code/?data="+ uri + "!&size=100x100"
+            //TODO: AÑADIR VCARD ¿?
 
             // API de Google
             URI uriQR = new URI(
