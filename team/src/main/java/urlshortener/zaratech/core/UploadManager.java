@@ -57,7 +57,7 @@ public class UploadManager {
 	}
 
 	public static ResponseEntity<ShortURL> singleShort(ShortURLRepository shortURLRepository, String url,
-			HttpServletRequest request) {
+			HttpServletRequest request, String vCardFName, Boolean vCardCheckbox) {
 
 		ResponseEntity<ShortURL> response;
 
@@ -77,7 +77,7 @@ public class UploadManager {
 				if (su != null) {
 					HttpHeaders h = new HttpHeaders();
 					h.setLocation(su.getUri());
-					su = QrManager.getUriWithQR(su);
+					su = QrManager.getUriWithQR(su, vCardFName, vCardCheckbox);
 					if (su != null) {
 						response = new ResponseEntity<>(su, h, HttpStatus.CREATED);
 					} else {

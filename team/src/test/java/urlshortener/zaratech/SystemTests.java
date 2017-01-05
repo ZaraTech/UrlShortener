@@ -76,7 +76,7 @@ public class SystemTests {
         assertThat(rc.read("$.target"), is("http://example.com/"));
         assertThat(rc.read("$.sponsor"), is(nullValue()));
         URI uriQR = new URI(
-                "http://chart.googleapis.com/chart?cht=qr&chs=100x100&chl=" + rc.read("$.uri") + "&choe=UTF-8");
+                "http://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=" + rc.read("$.uri") + "&choe=UTF-8");
         assertThat(rc.read("$.qr"), is(uriQR.toString()));
 
         // TODO comprobar que una peticion HTTP GET a la uri original no es una

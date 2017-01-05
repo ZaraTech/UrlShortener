@@ -10,6 +10,8 @@
     src="webjars/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="js/app-submit-single.js">
 </script>
+<script type="text/javascript" src="js/app-check-vcard-checkbox.js">
+</script>
 </head>
 <body>
     <div class="container-full">
@@ -53,7 +55,19 @@
                         <span class="input-group-btn"><button
                                 class="btn btn-lg btn-primary" type="submit">Short me!</button></span>
                     </div>
-                </form>
+                <p></p>
+                <!-- VCard INFORMATION -->
+            	<input type="checkbox" id="vCardCheckbox" name="vCardCheckbox"/>
+            	<label for="VCardCheckbox">VCard Information</label>
+            	<div id="messageContainer">
+					<div class="input-group input-group-lg col-sm-offset-4 col-sm-4">
+                     	<input type="text" class="center-block form-control input-lg"
+                            title="Enter a name" placeholder="Enter a name" name="vCardFName">
+                        
+                	</div>
+				</div>
+                <!-- VCard INFORMATION END -->
+                </form>                
             </div>
         </div>
         <div class="row">
