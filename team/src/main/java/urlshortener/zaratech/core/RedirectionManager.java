@@ -61,13 +61,14 @@ public class RedirectionManager {
 				throw new RedirectionException();
 					
 			} catch (IOException e2) {
-				logger.info("Failed request execution. Connection aborted");
+				logger.info("Failed request execution. Connection aborted.(" +e2.getMessage() + ")");
 				throw new RedirectionException();
-			}	
+			}
         } catch (URISyntaxException e) {
             logger.info("Failed getting uri. Bad syntax");
+            throw new RedirectionException();
         }
-
+        
         return isRedirected;
     }
 }

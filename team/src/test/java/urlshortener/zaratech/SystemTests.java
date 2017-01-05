@@ -148,9 +148,9 @@ public class SystemTests {
         assertThat(entity.getHeaders().getLocation(), is(new URI("http://example.com/")));
 
         // test last URI --> http://example9.com/
-        entity = new TestRestTemplate().getForEntity("http://localhost:" + this.port + "/7a9e76ee", String.class);
+        entity = new TestRestTemplate().getForEntity("http://localhost:" + this.port + "/5e399431", String.class);
         assertThat(entity.getStatusCode(), is(HttpStatus.TEMPORARY_REDIRECT));
-        assertThat(entity.getHeaders().getLocation(), is(new URI("http://example9.com/")));
+        assertThat(entity.getHeaders().getLocation(), is(new URI("http://google.com/")));
         
         // clean test file
         deleteCsvFile();
@@ -186,8 +186,9 @@ public class SystemTests {
         try {
             pw = new PrintWriter(csv);
             pw.println("http://example.com/, http://example2.com/, http://example3.com/");
-            pw.println("http://example4.com/, http://example5.com/, http://example6.com/");
-            pw.println("http://example7.com/, http://example8.com/, http://example9.com/");
+            pw.println("http://github.com/, http://unizar.es/, http://google.com/");
+            //pw.println("http://example4.com/, http://example5.com/, http://example6.com/");
+            //pw.println("http://example7.com/, http://example8.com/, http://example9.com/");
 
             pw.flush();
             pw.close();
