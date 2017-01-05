@@ -15,11 +15,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.LinkedList;
-import java.util.UUID;
+import java.sql.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
+import urlshortener.common.domain.Click;
 import urlshortener.common.domain.ShortURL;
 import urlshortener.common.repository.ClickRepository;
 import urlshortener.common.repository.ShortURLRepository;
@@ -58,45 +58,30 @@ public class UrlShortenerControllerWithLogs {
 
         ShortURL l = shortURLRepository.findByKey(id);
         if (l != null) {
-            UploadManager.createAndSaveClick(clickRepository, id, UploadManager.extractIP(request));
-            return UploadManager.createSuccessfulRedirectToResponse(l);
+            createAndSaveClick(id, UploadManager.extractIP(request));
+            return createSuccessfulRedirectToResponse(l);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+    
+    private void createAndSaveClick(String hash, String ip) {
+        Click cl = new Click(null, hash, new Date(System.currentTimeMillis()), null, null, null, ip, null);
+        cl = clickRepository.save(cl);
+        logger.info(cl != null ? "[" + hash + "] saved with id [" + cl.getId() + "]" : "[" + hash + "] was not saved");
+    }
+    
+    private ResponseEntity<?> createSuccessfulRedirectToResponse(ShortURL l) {
+        HttpHeaders h = new HttpHeaders();
+        h.setLocation(URI.create(l.getTarget()));
+        return new ResponseEntity<>(h, HttpStatus.valueOf(l.getMode()));
+    }
 
     @RequestMapping(value = "/link-single", method = RequestMethod.POST)
-    public ResponseEntity<ShortURL> singleShortener(@RequestParam("url") String url,
-            @RequestParam(value = "sponsor", required = false) String sponsor, HttpServletRequest request) {
+    public ResponseEntity<ShortURL> singleShortener(@RequestParam("url") String url, HttpServletRequest request) {
         logger.info("Requested new short for uri " + url);
 
-        ResponseEntity<ShortURL> response;
-
-        if (RedirectionManager.isRedirectedToSelf(url)) {
-
-            logger.info("Uri redirects to itself, short url can't be created");
-            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
-        } else {
-
-            logger.info("Uri doesn't redirects to itself. Creating short url ...");
-
-            ShortURL su = UploadManager.createAndSaveIfValid(shortURLRepository, url, sponsor,
-                    UUID.randomUUID().toString(), UploadManager.extractIP(request));
-
-            if (su != null) {
-                HttpHeaders h = new HttpHeaders();
-                h.setLocation(su.getUri());
-
-                response = new ResponseEntity<>(su, h, HttpStatus.CREATED);
-            } else {
-                response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
-
-            response = QrManager.getUriWithQR(response);
-        }
-
-        return response;
+        return UploadManager.singleShort(shortURLRepository, url, request);
     }
 
     @RequestMapping(value = "/link-multi", method = RequestMethod.POST)
@@ -105,23 +90,7 @@ public class UrlShortenerControllerWithLogs {
 
         logger.info("Requested new short for CSV file '" + csvFile.getOriginalFilename() + "'");
         
-        LinkedList<String> urls = UploadManager.processFile(csvFile);
-
-        ShortURL[] su = new ShortURL[urls.size()];
-
-        if (UploadManager.validateUrlList(urls)) {
-            int i = 0;
-
-            for (String url : urls) {
-                su[i] = UploadManager.createAndSaveIfValid(shortURLRepository, url, sponsor, UUID.randomUUID().toString(), UploadManager.extractIP(request));
-                i++;
-            }
-
-            HttpHeaders h = new HttpHeaders();
-            return new ResponseEntity<>(su, h, HttpStatus.CREATED);
-        } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        return UploadManager.MultiShortSync(shortURLRepository, csvFile, request);
     }
 
     @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}+", produces = "application/json", method = RequestMethod.GET)

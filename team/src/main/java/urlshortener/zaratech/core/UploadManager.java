@@ -7,10 +7,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.util.LinkedList;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -24,9 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.hash.Hashing;
 
-import urlshortener.common.domain.Click;
 import urlshortener.common.domain.ShortURL;
-import urlshortener.common.repository.ClickRepository;
 import urlshortener.common.repository.ShortURLRepository;
 import urlshortener.common.web.UrlShortenerController;
 import urlshortener.zaratech.domain.UploadTaskData;
@@ -36,7 +34,7 @@ import urlshortener.zaratech.store.UploadTaskDataStore;
 import urlshortener.zaratech.web.UrlShortenerControllerWithLogs;
 
 public class UploadManager {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(UrlShortenerControllerWithLogs.class);
 
     // TODO BORRAR
@@ -56,27 +54,85 @@ public class UploadManager {
 
         scheduler.newUploadTask(new UploadTask(details, tdStore));
     }
-    
-    public static void createAndSaveClick(ClickRepository clickRepository, String hash, String ip) {
-        Click cl = new Click(null, hash, new Date(System.currentTimeMillis()), null, null, null, ip, null);
-        cl = clickRepository.save(cl);
-        logger.info(cl != null ? "[" + hash + "] saved with id [" + cl.getId() + "]" : "[" + hash + "] was not saved");
+
+    public static ResponseEntity<ShortURL> singleShort(ShortURLRepository shortURLRepository, String url,
+            HttpServletRequest request) {
+
+        ResponseEntity<ShortURL> response;
+
+        if (RedirectionManager.isRedirectedToSelf(url)) {
+
+            logger.info("Uri redirects to itself, short url can't be created");
+            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+        } else {
+
+            logger.info("Uri doesn't redirects to itself. Creating short url ...");
+
+            ShortURL su = createAndSaveIfValid(shortURLRepository, url, UUID.randomUUID().toString(),
+                    extractIP(request));
+
+            if (su != null) {
+                HttpHeaders h = new HttpHeaders();
+                h.setLocation(su.getUri());
+                su = QrManager.getUriWithQR(su);
+                if(su != null){
+                    response = new ResponseEntity<>(su, h, HttpStatus.CREATED);
+                } else {
+                    response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+            } else {
+                response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+        }
+
+        return response;
     }
-    
+
+    public static ResponseEntity<ShortURL[]> MultiShortSync(ShortURLRepository shortURLRepository,
+            MultipartFile csvFile, HttpServletRequest request) {
+
+        LinkedList<String> urls = processFile(csvFile);
+
+        ShortURL[] su = new ShortURL[urls.size()];
+
+        if (validateUrlList(urls)) {
+            int i = 0;
+
+            for (String url : urls) {
+                if (!RedirectionManager.isRedirectedToSelf(url)) {
+                    
+                    ShortURL tmpSu = createAndSaveIfValid(shortURLRepository, url, UUID.randomUUID().toString(),
+                            extractIP(request));
+                            
+                    ShortURL tmpSu2 = QrManager.getUriWithQR(tmpSu);
+                    
+                    if(tmpSu2 != null){
+                        su[i] = tmpSu2;
+                        
+                    } else {
+                        su[i] = tmpSu;
+                    }
+                    
+                    i++;
+                }
+            }
+
+            HttpHeaders h = new HttpHeaders();
+            return new ResponseEntity<>(su, h, HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
     public static String extractIP(HttpServletRequest request) {
         return request.getRemoteAddr();
-    }
-    
-    public static ResponseEntity<?> createSuccessfulRedirectToResponse(ShortURL l) {
-        HttpHeaders h = new HttpHeaders();
-        h.setLocation(URI.create(l.getTarget()));
-        return new ResponseEntity<>(h, HttpStatus.valueOf(l.getMode()));
     }
 
     /**
      * Returns all the comma-separated URLs contained in the CSV file
      */
-    public static LinkedList<String> processFile(MultipartFile csvFile) {
+    private static LinkedList<String> processFile(MultipartFile csvFile) {
 
         InputStream is;
 
@@ -104,7 +160,7 @@ public class UploadManager {
     /**
      * Returns true if, and only if, all URLs are valid
      */
-    public static boolean validateUrlList(LinkedList<String> urls) {
+    private static boolean validateUrlList(LinkedList<String> urls) {
 
         boolean resp = true;
 
@@ -114,12 +170,13 @@ public class UploadManager {
 
         return resp;
     }
-    
-    public static ShortURL createAndSaveIfValid(ShortURLRepository shortURLRepository, String url, String sponsor, String owner, String ip) {
+
+    private static ShortURL createAndSaveIfValid(ShortURLRepository shortURLRepository, String url, String owner,
+            String ip) {
         if (isValid(url)) {
             String id = Hashing.murmur3_32().hashString(url, StandardCharsets.UTF_8).toString();
             ShortURL su = new ShortURL(id, url,
-                    linkTo(methodOn(UrlShortenerController.class).redirectTo(id, null)).toUri(), sponsor,
+                    linkTo(methodOn(UrlShortenerController.class).redirectTo(id, null)).toUri(), null,
                     new Date(System.currentTimeMillis()), owner, HttpStatus.TEMPORARY_REDIRECT.value(), true, ip, null);
             return shortURLRepository.save(su);
         } else {
@@ -127,7 +184,7 @@ public class UploadManager {
         }
     }
 
-    public static boolean isValid(String url) {
+    private static boolean isValid(String url) {
         UrlValidator urlValidator = new UrlValidator(new String[] { "http", "https" });
         return urlValidator.isValid(url);
     }
