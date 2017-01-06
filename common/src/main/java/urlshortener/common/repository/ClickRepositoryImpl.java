@@ -71,7 +71,7 @@ public class ClickRepositoryImpl implements ClickRepository {
 						throws SQLException {
 					PreparedStatement ps = conn
 							.prepareStatement(
-									"INSERT INTO CLICK VALUES (?, ?, ?, ?, ?,?,?, ?, ?, ?)",
+									"INSERT INTO CLICK VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 									Statement.RETURN_GENERATED_KEYS);
 					ps.setNull(1, Types.BIGINT);
 					ps.setString(2, cl.getHash());
