@@ -62,6 +62,6 @@
         </form>
         <p></p>
     <div id="result" />
-</div>>
+</div>
 </body>
 </html>
