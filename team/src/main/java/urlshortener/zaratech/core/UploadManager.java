@@ -7,6 +7,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.util.LinkedList;
@@ -20,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.hash.Hashing;
@@ -27,73 +30,86 @@ import com.google.common.hash.Hashing;
 import urlshortener.common.domain.ShortURL;
 import urlshortener.common.repository.ShortURLRepository;
 import urlshortener.common.web.UrlShortenerController;
+import urlshortener.zaratech.domain.NoQrException;
+import urlshortener.zaratech.domain.RedirectionDetails;
 import urlshortener.zaratech.domain.UploadTaskData;
 import urlshortener.zaratech.scheduling.Scheduler;
 import urlshortener.zaratech.scheduling.UploadTask;
 import urlshortener.zaratech.store.UploadTaskDataStore;
-import urlshortener.zaratech.web.UrlShortenerControllerWithLogs;
 
 public class UploadManager {
 
     private static final Logger logger = LoggerFactory.getLogger(UploadManager.class);
 
-    // TODO BORRAR
-    public static void startTask(Scheduler scheduler, UploadTaskDataStore tdStore, String id) {
-        UploadTaskData details = new UploadTaskData(id);
-
-        details.addUrl("http://example1.com");
-        details.addUrl("http://example2.com");
-        details.addUrl("http://example3.com");
-        details.addUrl("http://example4.com");
-        details.addUrl("http://example5.com");
-        details.addUrl("http://example6.com");
-        details.addUrl("http://example7.com");
-        details.addUrl("http://example8.com");
-
-        tdStore.save(details);
-
-        scheduler.newUploadTask(new UploadTask(details, tdStore));
-    }
-
     public static ResponseEntity<ShortURL> singleShort(ShortURLRepository shortURLRepository, String url,
             HttpServletRequest request) {
 
-        ResponseEntity<ShortURL> response;
+        String ip = extractIP(request);
+
+        try {
+            ShortURL su = singleShort(shortURLRepository, null, url, ip);
+
+            if (su != null) {
+                HttpHeaders h = new HttpHeaders();
+                h.setLocation(su.getUri());
+                return new ResponseEntity<>(su, h, HttpStatus.CREATED);
+            } else {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public static ShortURL singleShort(ShortURLRepository shortURLRepository, String urlBase, String url, String ip)
+            throws NoQrException {
 
         if (RedirectionManager.isRedirectedToSelf(url)) {
 
             logger.info("Uri redirects to itself, short url can't be created");
-            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return null;
 
         } else {
 
             logger.info("Uri doesn't redirects to itself. Creating short url ...");
 
-            ShortURL su = createAndSaveIfValid(shortURLRepository, url, UUID.randomUUID().toString(),
-                    extractIP(request));
+            ShortURL su = createAndSaveIfValid(shortURLRepository, urlBase, url, UUID.randomUUID().toString(), ip);
 
             if (su != null) {
                 HttpHeaders h = new HttpHeaders();
                 h.setLocation(su.getUri());
                 su = QrManager.getUriWithQR(su);
-                if(su != null){
-                    response = new ResponseEntity<>(su, h, HttpStatus.CREATED);
+                if (su != null) {
+                    return su;
                 } else {
-                    response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+                    logger.info("QR Exception");
+                    throw new NoQrException();
                 }
             } else {
-                response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                return null;
             }
         }
-
-        return response;
     }
 
-    public static ResponseEntity<ShortURL[]> MultiShortSync(ShortURLRepository shortURLRepository,
+    public static ResponseEntity<ShortURL[]> multiShortSync(ShortURLRepository shortURLRepository,
             MultipartFile csvFile, HttpServletRequest request) {
 
         LinkedList<String> urls = processFile(csvFile);
+        String ip = extractIP(request);
 
+        ShortURL[] su = multiShort(shortURLRepository, urls, ip);
+
+        if (su != null) {
+            HttpHeaders h = new HttpHeaders();
+            return new ResponseEntity<>(su, h, HttpStatus.CREATED);
+
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+    }
+
+    private static ShortURL[] multiShort(ShortURLRepository shortURLRepository, LinkedList<String> urls, String ip) {
         ShortURL[] su = new ShortURL[urls.size()];
 
         if (validateUrlList(urls)) {
@@ -101,27 +117,70 @@ public class UploadManager {
 
             for (String url : urls) {
                 if (!RedirectionManager.isRedirectedToSelf(url)) {
-                    
-                    ShortURL tmpSu = createAndSaveIfValid(shortURLRepository, url, UUID.randomUUID().toString(),
-                            extractIP(request));
-                            
+
+                    ShortURL tmpSu = createAndSaveIfValid(shortURLRepository, null, url, UUID.randomUUID().toString(),
+                            ip);
+
                     ShortURL tmpSu2 = QrManager.getUriWithQR(tmpSu);
-                    
-                    if(tmpSu2 != null){
+
+                    if (tmpSu2 != null) {
                         su[i] = tmpSu2;
-                        
+
                     } else {
                         su[i] = tmpSu;
                     }
-                    
+
                     i++;
                 }
             }
 
-            HttpHeaders h = new HttpHeaders();
-            return new ResponseEntity<>(su, h, HttpStatus.CREATED);
+            return su;
+
         } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return null;
+        }
+    }
+
+    public static ResponseEntity<RedirectionDetails> multiShortAsync(Scheduler scheduler,
+            ShortURLRepository shortURLRepository, UploadTaskDataStore tdStore, MultipartFile csvFile,
+            HttpServletRequest request) {
+
+        LinkedList<String> urls = processFile(csvFile);
+        String ip = extractIP(request);
+
+        String urlsStr = "";
+
+        for (String url : urls) {
+            urlsStr += url;
+        }
+
+        String id = Hashing.murmur3_32().hashString(urlsStr, StandardCharsets.UTF_8).toString();
+
+        UploadTaskData details = new UploadTaskData(id);
+
+        for (String url : urls) {
+            try {
+                details.addUrl(new URI(url));
+            } catch (URISyntaxException e) {
+                // do nothing -> malformed URL not added
+            }
+        }
+
+        // save pending state
+        tdStore.save(details);
+
+        String baseUrl = "http://" + request.getLocalName() + ":" + request.getServerPort();
+        scheduler.newUploadTask(new UploadTask(shortURLRepository, tdStore, details, ip, baseUrl));
+
+        try {
+            URI url = new URI(baseUrl + "/task/" + id);
+            HttpHeaders h = new HttpHeaders();
+            h.setLocation(url);
+            RedirectionDetails rd = new RedirectionDetails(url);
+            return new ResponseEntity<RedirectionDetails>(rd, h, HttpStatus.ACCEPTED);
+
+        } catch (URISyntaxException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -171,17 +230,39 @@ public class UploadManager {
         return resp;
     }
 
-    private static ShortURL createAndSaveIfValid(ShortURLRepository shortURLRepository, String url, String owner,
-            String ip) {
+    private static ShortURL createAndSaveIfValid(ShortURLRepository shortURLRepository, String urlBase, String url,
+            String owner, String ip) {
+
         if (isValid(url)) {
             String id = Hashing.murmur3_32().hashString(url, StandardCharsets.UTF_8).toString();
-            ShortURL su = new ShortURL(id, url,
-                    linkTo(methodOn(UrlShortenerController.class).redirectTo(id, null)).toUri(), null,
-                    new Date(System.currentTimeMillis()), owner, HttpStatus.TEMPORARY_REDIRECT.value(), true, ip, null);
+
+            URI link;
+            try {
+                link = linkTo(methodOn(UrlShortenerController.class).redirectTo(id, null)).toUri();
+            } catch (Exception e) {
+                link = createLink(urlBase, id);
+            }
+
+            logger.info("createAndSaveIfValid: link = " + link.toString());
+
+            ShortURL su = new ShortURL(id, url, link, null, new Date(System.currentTimeMillis()), owner,
+                    HttpStatus.TEMPORARY_REDIRECT.value(), true, ip, null);
+
             return shortURLRepository.save(su);
         } else {
             return null;
         }
+    }
+
+    private static URI createLink(String urlBase, String id) {
+        URI url = null;
+        try {
+            url = new URI(urlBase + "/" + id);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        return url;
     }
 
     private static boolean isValid(String url) {

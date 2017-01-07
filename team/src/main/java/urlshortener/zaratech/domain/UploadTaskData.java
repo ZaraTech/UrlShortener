@@ -1,14 +1,22 @@
 package urlshortener.zaratech.domain;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import urlshortener.common.domain.ShortURL;
+
 public class UploadTaskData extends TaskData implements Serializable {
+    
+    private static final Logger logger = LoggerFactory.getLogger(UploadTaskData.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -30,22 +38,29 @@ public class UploadTaskData extends TaskData implements Serializable {
         this.id = id;
     }
 
-    public void addUrl(String url) {
+    public void addUrl(URI url) {
 
-        UploadTaskDataStruct tc = new UploadTaskDataStruct(url, PENDING);
+        UploadTaskDataStruct utds = new UploadTaskDataStruct(url, PENDING);
 
-        urls.add(tc);
-        urlsMap.put(url, tc);
+        urls.add(utds);
+        urlsMap.put(url.toString(), utds);
     }
 
-    public void setUrlCompleted(String url) {
-        UploadTaskDataStruct tc = urlsMap.get(url);
-        tc.setProgress(COMPLETED);
+    public void setUrlCompleted(ShortURL su) {
+        UploadTaskDataStruct utds = urlsMap.get(su.getTarget());
+        utds.setProgress(COMPLETED);
+        utds.setCreated(su.getCreated());
+        utds.setHash(su.getHash());
+        utds.setIp(su.getIP());
+        utds.setMode(su.getMode());
+        utds.setOwner(su.getOwner());
+        utds.setQr(su.getQR());
+        utds.setUri(su.getUri());
     }
 
     public void setUrlError(String url) {
-        UploadTaskDataStruct tc = urlsMap.get(url);
-        tc.setProgress(ERROR);
+        UploadTaskDataStruct utds = urlsMap.get(url);
+        utds.setProgress(ERROR);
     }
 
     @JsonIgnore
@@ -58,8 +73,8 @@ public class UploadTaskData extends TaskData implements Serializable {
 
         List<String> resp = new LinkedList<String>();
 
-        for (UploadTaskDataStruct tc : urls) {
-            resp.add(tc.getUrl());
+        for (UploadTaskDataStruct utds : urls) {
+            resp.add(utds.getTarget());
         }
 
         return resp;

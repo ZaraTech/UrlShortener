@@ -27,6 +27,11 @@ public class UrlShortnerWebController {
     public String indexMulti(HttpServletRequest request) {
         return "multi";
     }
+    
+    @RequestMapping(value = "/multi-async", method = RequestMethod.GET)
+    public String indexMultiAsync(HttpServletRequest request) {
+        return "multi-async";
+    }
 
     @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}+.html", method = RequestMethod.GET)
     public String showDetails(@PathVariable String id, Map<String, Object> model) {
