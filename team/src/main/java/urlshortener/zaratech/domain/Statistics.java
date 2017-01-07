@@ -31,7 +31,6 @@ public class Statistics {
 
     @JsonProperty("clicksforos")
     private List<Integer> clicksForOs;
-
     /*
     * Class constructor
     * */

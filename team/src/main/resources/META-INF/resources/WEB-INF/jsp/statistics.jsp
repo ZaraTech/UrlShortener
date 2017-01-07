@@ -4,10 +4,12 @@
     <title>URL Shortener</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css"
-          href="../webjars/bootstrap/3.3.5/css/bootstrap.min.css" />
-    <script type="text/javascript" src="../webjars/jquery/2.1.4/jquery.min.js"></script>
+          href="webjars/bootstrap/3.3.5/css/bootstrap.min.css" />
+    <script type="text/javascript" src="webjars/jquery/2.1.4/jquery.min.js"></script>
     <script type="text/javascript"
-            src="../webjars/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+            src="webjars/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/statistic.js">
+    </script>
 </head>
 <body>
 <div class="container-full">
@@ -38,31 +40,27 @@
         </div><!-- /.container-fluid -->
     </nav>
     <div class="row">
-        <table class="table">
-            <tr>
-                <th>&nbsp Browser&nbsp</th>
-                <th>&nbsp Version&nbsp</th>
-                <th>&nbsp % Use&nbsp</th>
-
-            </tr>
-            <tr>
-
-            </tr>
-        </table>
-        <table class="table">
-            <tr>
-                <th>&nbsp OS&nbsp</th>
-                <th>&nbsp % Use&nbsp</th>
-
-            </tr>
-            <tr>
-
-            </tr>
-        </table>
+        <form action="" class="form-inline" id="form">
+            <div class="form-group">
+                <label class="control-label col-xs-3"> Desde</label>
+                <div class="col-xs-9">
+                    <input type="text" name="datepicker" id="datepicker" readonly="readonly" size="12" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-xs-3"> Hasta</label>
+                <div class="col-xs-9">
+                    <input type="text" name="datepicker" id="datepicker2" readonly="readonly" size="12" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-offset-3 col-xs-9">
+                    <input type="submit" class="btn btn-primary" id="filtrar" value="Filtrar">
+                </div>
+            </div>
+        </form>
     </div>
-    <body>
-
-    </body>
 </div>
+<div id="result" class="container"/>
 </body>
 </html>
