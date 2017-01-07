@@ -27,6 +27,7 @@ import urlshortener.zaratech.core.HeadersManager;
 import urlshortener.zaratech.core.UploadManager;
 import urlshortener.zaratech.domain.UploadTaskData;
 import urlshortener.zaratech.domain.UrlDetails;
+import urlshortener.zaratech.domain.Statistics;
 import urlshortener.zaratech.domain.UserAgentDetails;
 import urlshortener.zaratech.scheduling.Scheduler;
 import urlshortener.zaratech.store.UploadTaskDataStore;
@@ -63,6 +64,12 @@ public class UrlShortenerControllerWithLogs {
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    @RequestMapping(value = "/statistics", produces = "application/json", method = RequestMethod.GET)
+    public ResponseEntity<Statistics> showStatistics(HttpServletRequest request) {
+        Statistics statistics=headersManager.getStatistics(clickRepository.listAll());
+        return new ResponseEntity<Statistics>(statistics, HttpStatus.OK);
     }
 
     private void createAndSaveClick(String hash, String ip,String browser,String version,String os) {

@@ -34,13 +34,6 @@ public class UrlShortnerWebController {
         return "multi";
     }
 
-    @RequestMapping(value = "/statistics", method = RequestMethod.GET)
-    public String showStatistics(HttpServletRequest request, Map<String, Object> model) {
-        List<Click> clicks =clickRepository.listAll();
-        model.put("clicks", clicks);
-        return "statistics";
-    }
-
     @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}+.html", method = RequestMethod.GET)
     public String showDetails(@PathVariable String id, Map<String, Object> model) {
 
