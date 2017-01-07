@@ -27,6 +27,7 @@ import com.google.common.hash.Hashing;
 import urlshortener.common.domain.ShortURL;
 import urlshortener.common.repository.ShortURLRepository;
 import urlshortener.common.web.UrlShortenerController;
+import urlshortener.zaratech.domain.RedirectionException;
 import urlshortener.zaratech.domain.UploadTaskData;
 import urlshortener.zaratech.scheduling.Scheduler;
 import urlshortener.zaratech.scheduling.UploadTask;
@@ -56,34 +57,38 @@ public class UploadManager {
     }
 
     public static ResponseEntity<ShortURL> singleShort(ShortURLRepository shortURLRepository, String url,
-            HttpServletRequest request) {
+            HttpServletRequest request, String vCardFName, Boolean vCardCheckbox, String errorRadio) {
 
         ResponseEntity<ShortURL> response;
 
-        if (RedirectionManager.isRedirectedToSelf(url)) {
+        try {
+            if (RedirectionManager.isRedirectedToSelf(url)) {
 
-            logger.info("Uri redirects to itself, short url can't be created");
-            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
-        } else {
-
-            logger.info("Uri doesn't redirects to itself. Creating short url ...");
-
-            ShortURL su = createAndSaveIfValid(shortURLRepository, url, UUID.randomUUID().toString(),
-                    extractIP(request));
-
-            if (su != null) {
-                HttpHeaders h = new HttpHeaders();
-                h.setLocation(su.getUri());
-                su = QrManager.getUriWithQR(su);
-                if(su != null){
-                    response = new ResponseEntity<>(su, h, HttpStatus.CREATED);
-                } else {
-                    response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-                }
-            } else {
+                logger.info("Uri redirects to itself, short url can't be created");
                 response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+            } else {
+
+                logger.info("Uri doesn't redirects to itself. Creating short url ...");
+
+                ShortURL su = createAndSaveIfValid(shortURLRepository, url, UUID.randomUUID().toString(),
+                        extractIP(request));
+
+                if (su != null) {
+                    HttpHeaders h = new HttpHeaders();
+                    h.setLocation(su.getUri());
+                    su = QrManager.getUriWithQR(su, vCardFName, vCardCheckbox, errorRadio);
+                    if (su != null) {
+                        response = new ResponseEntity<>(su, h, HttpStatus.CREATED);
+                    } else {
+                        response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
+                } else {
+                    response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                }
             }
+        } catch (RedirectionException e) {
+            response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         return response;
@@ -100,21 +105,25 @@ public class UploadManager {
             int i = 0;
 
             for (String url : urls) {
-                if (!RedirectionManager.isRedirectedToSelf(url)) {
-                    
-                    ShortURL tmpSu = createAndSaveIfValid(shortURLRepository, url, UUID.randomUUID().toString(),
-                            extractIP(request));
-                            
-                    ShortURL tmpSu2 = QrManager.getUriWithQR(tmpSu);
-                    
-                    if(tmpSu2 != null){
-                        su[i] = tmpSu2;
-                        
-                    } else {
-                        su[i] = tmpSu;
+                try {
+                    if (!RedirectionManager.isRedirectedToSelf(url)) {
+
+                        ShortURL tmpSu = createAndSaveIfValid(shortURLRepository, url, UUID.randomUUID().toString(),
+                                extractIP(request));
+
+                        ShortURL tmpSu2 = QrManager.getUriWithQR(tmpSu);
+
+                        if (tmpSu2 != null) {
+                            su[i] = tmpSu2;
+
+                        } else {
+                            su[i] = tmpSu;
+                        }
+
+                        i++;
                     }
-                    
-                    i++;
+                } catch (RedirectionException e) {
+                    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
                 }
             }
 
