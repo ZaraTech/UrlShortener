@@ -49,6 +49,8 @@ dependencies {
     compile 'com.github.kstyrc:embedded-redis:0.6'
     compile 'org.springframework.data:spring-data-redis:1.7.6.RELEASE'
     compile 'redis.clients:jedis:2.9.0'
+    
+    compile 'org.apache.httpcomponents:httpclient:4.5.2'
 }
 
 war {

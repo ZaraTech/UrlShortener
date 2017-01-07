@@ -79,10 +79,13 @@ public class UrlShortenerControllerWithLogs {
     }
 
     @RequestMapping(value = "/link-single", method = RequestMethod.POST)
-    public ResponseEntity<ShortURL> singleShortener(@RequestParam("url") String url, HttpServletRequest request) {
+    public ResponseEntity<ShortURL> singleShortener(@RequestParam("url") String url, 
+    		@RequestParam(value = "vCardFName", required = false) String vCardFName, 
+    		@RequestParam(value = "vCardCheckbox", required = false) Boolean vCardCheckbox,
+    		@RequestParam(value = "errorRadio", required = false) String errorRadio, HttpServletRequest request) {
         logger.info("Requested new short for uri " + url);
 
-        return UploadManager.singleShort(shortURLRepository, url, request);
+        return UploadManager.singleShort(shortURLRepository, url, request, vCardFName, vCardCheckbox, errorRadio);
     }
 
     @RequestMapping(value = "/link-multi", method = RequestMethod.POST)

@@ -1,15 +1,19 @@
 package urlshortener.zaratech.core;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
-import urlshortener.common.domain.ShortURL;
+import urlshortener.zaratech.domain.RedirectionException;
 
 public class RedirectionManager {
 
@@ -18,49 +22,52 @@ public class RedirectionManager {
     /**
      * Method that checks if the URL given redirects to itself
      * 
-     * @param url - URL to check
+     * @param url
+     *            - URL to check
      * @return True if the URL given redirects to itself.
+     * @throws RedirectionException
      */
-    public static boolean isRedirectedToSelf(String url) {
+    public static boolean isRedirectedToSelf(String url) throws RedirectionException {
 
         URI uri;
-        URI location;
         boolean isRedirected = false;
-        int responseCode = 0;
 
         try {
             uri = new URI(url);
 
-            // HTTP GET
-            RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<ShortURL> response = restTemplate.getForEntity(uri.toString(), null);
-            location = response.getHeaders().getLocation();
-            responseCode = response.getStatusCodeValue();
+            HttpClient client = HttpClientBuilder.create().build();
+            HttpClientContext context = HttpClientContext.create();
 
-            if (responseCode >= 300 && responseCode < 400) { // HTTP code 3XX - Redirection
+            try {
 
-                if (location != null) {
+                List<URI> redirectLocations;
 
-                    if (url.equals(location.toString())) {
+                // HTTP GET
+                client.execute(new HttpGet(uri), context);
+                redirectLocations = context.getRedirectLocations();
 
-                        isRedirected = true;
-                    } else {
+                if (redirectLocations != null && !redirectLocations.isEmpty()) {
+                    for (URI location : redirectLocations) {
+                        if (location != null) {
+                            if (url.equals(location.toString())) {
 
-                        isRedirected = false;
+                                isRedirected = true;
+                            }
+                        }
                     }
-                } else {
-
-                    isRedirected = true;
                 }
-            } else {
+            } catch (ClientProtocolException e1) {
+                logger.info("Failed request execution. Http protocol error");
+                throw new RedirectionException();
 
-                isRedirected = false;
+            } catch (IOException e2) {
+                logger.info("Failed request execution. Connection aborted.");
+
+                throw new RedirectionException();
             }
-        } catch (RestClientException e) {
-            logger.info("Failed checking redirection");
-
         } catch (URISyntaxException e) {
             logger.info("Failed getting uri. Bad syntax");
+            throw new RedirectionException();
         }
 
         return isRedirected;
