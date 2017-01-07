@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
@@ -25,6 +27,7 @@ import urlshortener.common.repository.ClickRepository;
 import urlshortener.common.repository.ShortURLRepository;
 import urlshortener.zaratech.core.HeadersManager;
 import urlshortener.zaratech.core.UploadManager;
+import urlshortener.zaratech.domain.RedirectionDetails;
 import urlshortener.zaratech.domain.UploadTaskData;
 import urlshortener.zaratech.domain.UrlDetails;
 import urlshortener.zaratech.scheduling.Scheduler;
@@ -91,7 +94,16 @@ public class UrlShortenerControllerWithLogs {
 
         logger.info("Requested new short for CSV file '" + csvFile.getOriginalFilename() + "'");
         
-        return UploadManager.MultiShortSync(shortURLRepository, csvFile, request);
+        return UploadManager.multiShortSync(shortURLRepository, csvFile, request);
+    }
+    
+    @RequestMapping(value = "/link-multi-async", method = RequestMethod.POST)
+    public ResponseEntity<RedirectionDetails> multiShortenerAsync(@RequestParam("url") MultipartFile csvFile,
+            @RequestParam(value = "sponsor", required = false) String sponsor, HttpServletRequest request) {
+
+        logger.info("Requested new short for CSV file '" + csvFile.getOriginalFilename() + "'");
+        
+        return UploadManager.multiShortAsync(scheduler, shortURLRepository, tdStore, csvFile, request);
     }
 
     @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}+", produces = "application/json", method = RequestMethod.GET)
@@ -131,15 +143,4 @@ public class UrlShortenerControllerWithLogs {
 
         return new ResponseEntity<UploadTaskData>(details, HttpStatus.OK);
     }
-
-    @RequestMapping(value = "/task-start/{id:.*}", method = RequestMethod.GET)
-    public ResponseEntity<?> startTask(@PathVariable String id) {
-
-        logger.info("Requested START TASK progress for id '" + id + "'");
-
-        UploadManager.startTask(scheduler, tdStore, id);
-
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
 }

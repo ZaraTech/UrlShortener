@@ -79,10 +79,56 @@ public class ShortURL {
 	public URI getQR() {
 		return qr;
 	}
+
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
+    }
+
+    public void setUri(URI uri) {
+        this.uri = uri;
+    }
+
+    public void setSponsor(String sponsor) {
+        this.sponsor = sponsor;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public void setMode(Integer mode) {
+        this.mode = mode;
+    }
+
+    public void setSafe(Boolean safe) {
+        this.safe = safe;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public void setQR(URI qr) {
+        this.qr = qr;
+    }
+
+    @Override
+    public String toString() {
+        return "ShortURL [hash=" + hash + ", target=" + target + ", uri=" + uri + ", sponsor=" + sponsor + ", created="
+                + created + ", owner=" + owner + ", mode=" + mode + ", safe=" + safe + ", ip=" + ip + ", country="
+                + country + ", qr=" + qr + "]";
+    }
 	
-	public void setQR(URI qr) {
-		this.qr = qr;
-	}
-
-
 }
