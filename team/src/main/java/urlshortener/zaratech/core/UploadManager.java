@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.hash.Hashing;
@@ -60,36 +59,37 @@ public class UploadManager {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    public static ShortURL singleShort(ShortURLRepository shortURLRepository, String urlBase, String url, String ip)
+            throws NoQrException, RedirectionException {
+        return singleShort(shortURLRepository, urlBase, url, ip, null, false, null);
+    }
 
     public static ShortURL singleShort(ShortURLRepository shortURLRepository, String urlBase, String url, String ip, String vCardFName, Boolean vCardCheckbox, String errorRadio)
-            throws NoQrException {
+            throws NoQrException, RedirectionException {
+        
+        if (RedirectionManager.isRedirectedToSelf(url)) {
+            logger.info("Uri redirects to itself, short url can't be created");
+            return null;
+        } else {
 
-        try {
-            if (RedirectionManager.isRedirectedToSelf(url)) {
-                logger.info("Uri redirects to itself, short url can't be created");
-                return null;
-            } else {
+            logger.info("Uri doesn't redirects to itself. Creating short url ...");
 
-                logger.info("Uri doesn't redirects to itself. Creating short url ...");
+            ShortURL su = createAndSaveIfValid(shortURLRepository, urlBase, url, UUID.randomUUID().toString(), ip);
 
-                ShortURL su = createAndSaveIfValid(shortURLRepository, urlBase, url, UUID.randomUUID().toString(), ip);
-
+            if (su != null) {
+                HttpHeaders h = new HttpHeaders();
+                h.setLocation(su.getUri());
+                su = QrManager.getUriWithQR(su, vCardFName, vCardCheckbox, errorRadio);
                 if (su != null) {
-                    HttpHeaders h = new HttpHeaders();
-                    h.setLocation(su.getUri());
-                    su = QrManager.getUriWithQR(su, vCardFName, vCardCheckbox, errorRadio);
-                    if (su != null) {
-                        return su;
-                    } else {
-                        logger.info("QR Exception");
-                        throw new NoQrException();
-                    }
+                    return su;
                 } else {
-                    return null;
+                    logger.info("QR Exception");
+                    throw new NoQrException();
                 }
+            } else {
+                return null;
             }
-        } catch (RedirectionException e) {
-            response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -136,7 +136,7 @@ public class UploadManager {
                         i++;
                     }
                 } catch (RedirectionException e) {
-                    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+                    return null;
                 }
             }
 

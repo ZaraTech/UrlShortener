@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import urlshortener.common.domain.ShortURL;
 import urlshortener.common.repository.ShortURLRepository;
 import urlshortener.zaratech.core.UploadManager;
-import urlshortener.zaratech.domain.NoQrException;
 import urlshortener.zaratech.domain.UploadTaskData;
 import urlshortener.zaratech.store.UploadTaskDataStore;
 
@@ -60,7 +59,7 @@ public class UploadTask implements Runnable{
         try {
             return UploadManager.singleShort(shortURLRepository, baseUrl, url, ip);
             
-        } catch (NoQrException e) {
+        } catch (Exception e) {
             return null;
         }
     }
