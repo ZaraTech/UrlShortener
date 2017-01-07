@@ -39,6 +39,7 @@
             </div><!-- /.navbar-collapse -->
         </div><!-- /.container-fluid -->
     </nav>
+<div class="container">
     <div class="row">
         <form action="" class="form-inline" id="form">
             <div class="form-group">
@@ -59,8 +60,8 @@
                 </div>
             </div>
         </form>
-    </div>
-</div>
-<div id="result" class="container"/>
+        <p></p>
+    <div id="result" />
+</div>>
 </body>
 </html>
