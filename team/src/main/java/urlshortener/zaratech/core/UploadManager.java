@@ -42,7 +42,7 @@ public class UploadManager {
     private static final Logger logger = LoggerFactory.getLogger(UploadManager.class);
 
     public static ResponseEntity<ShortURL> singleShort(ShortURLRepository shortURLRepository, String url,
-            HttpServletRequest reques, String vCardFName, Boolean vCardCheckbox, String errorRadio) {
+            HttpServletRequest request, String vCardFName, Boolean vCardCheckbox, String errorRadio) {
 
         String ip = extractIP(request);
 
