@@ -1,14 +1,18 @@
 package urlshortener.zaratech.core;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import urlshortener.common.domain.ShortURL;
+import urlshortener.common.domain.Click;
 import urlshortener.common.repository.ClickRepository;
 import urlshortener.common.repository.ShortURLRepository;
 import urlshortener.zaratech.domain.UrlDetails;
+import urlshortener.zaratech.domain.Statistics;
 import urlshortener.zaratech.domain.UserAgentDetails;
 import net.sf.uadetector.*;
 import net.sf.uadetector.service.UADetectorServiceFactory;
@@ -43,7 +47,34 @@ public class HeadersManager {
 
         return new UserAgentDetails(agent.getName(), browserVers.toVersionString(), os.getName());
     }
+    public Statistics getStatistics(List<Click> clicks){
+        Statistics st=new Statistics();
+        st.addTotal(clicks.size());
+        for (int i = 0; i <= clicks.size() - 1; i++) {
+            if(st.getIndexBrowser(clicks.get(i).getBrowser())==-1){
+                st.insertBrowser(clicks.get(i).getBrowser());
+            }else{
+                st.updateclicksForBrowser(st.getIndexBrowser(clicks.get(i).getBrowser()));
+            }
+            int browser=st.getIndexBrowser(clicks.get(i).getBrowser());
+            if(st.getIndexVersion(clicks.get(i).getVersion())==-1){
+                st.insertVersion(browser,clicks.get(i).getVersion());
+            }else{
+                st.updateclicksForBrowserAndVersion(browser,st.getIndexVersion(clicks.get(i).getVersion()));
+            }
 
+            if(st.getIndexOs(clicks.get(i).getOs())==-1){
+                if(clicks.get(i).getOs().indexOf("Linux")==-1){
+                    st.insertOs(clicks.get(i).getOs());
+                }else{
+                    st.insertOs("Linux");
+                }
+            }else{
+                st.updateclicksForOs(st.getIndexOs(clicks.get(i).getOs()));
+            }
+        }
+        return st;
+    }
     private ShortURL getUrlDetails(String id) {
         return shortURLRepository.findByKey(id);
     }

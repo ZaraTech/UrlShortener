@@ -34,7 +34,7 @@ public class ClickRepositoryImpl implements ClickRepository {
 		public Click mapRow(ResultSet rs, int rowNum) throws SQLException {
 			return new Click(rs.getLong("id"), rs.getString("hash"),
 					rs.getDate("created"), rs.getString("referrer"),
-					rs.getString("browser"), rs.getString("platform"),
+					rs.getString("browser"),rs.getString("version"),rs.getString("os"), rs.getString("platform"),
 					rs.getString("ip"), rs.getString("country"));
 		}
 	};
@@ -71,16 +71,18 @@ public class ClickRepositoryImpl implements ClickRepository {
 						throws SQLException {
 					PreparedStatement ps = conn
 							.prepareStatement(
-									"INSERT INTO CLICK VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+									"INSERT INTO CLICK VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 									Statement.RETURN_GENERATED_KEYS);
 					ps.setNull(1, Types.BIGINT);
 					ps.setString(2, cl.getHash());
 					ps.setDate(3, cl.getCreated());
 					ps.setString(4, cl.getReferrer());
 					ps.setString(5, cl.getBrowser());
-					ps.setString(6, cl.getPlatform());
-					ps.setString(7, cl.getIp());
-					ps.setString(8, cl.getCountry());
+					ps.setString(6, cl.getVersion());
+					ps.setString(7, cl.getOs());
+					ps.setString(8, cl.getPlatform());
+					ps.setString(9, cl.getIp());
+					ps.setString(10, cl.getCountry());
 					return ps;
 				}
 			}, holder);
@@ -105,7 +107,7 @@ public class ClickRepositoryImpl implements ClickRepository {
 					cl.getHash(), cl.getCreated(), cl.getReferrer(),
 					cl.getBrowser(), cl.getPlatform(), cl.getIp(),
 					cl.getCountry(), cl.getId());
-			
+
 		} catch (Exception e) {
 			log.info("When update for id " + cl.getId(), e);
 		}
@@ -152,6 +154,15 @@ public class ClickRepositoryImpl implements ClickRepository {
 		}
 	}
 
+	@Override
+	public List<Click> listAll() {
+		try {
+			return jdbc.query("SELECT * FROM click", rowMapper);
+		} catch (Exception e) {
+			log.debug("Selected all clicks");
+			return null;
+		}
+	}
 	@Override
 	public Long clicksByHash(String hash) {
 		try {
