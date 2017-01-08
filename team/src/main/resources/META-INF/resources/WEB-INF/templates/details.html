@@ -21,7 +21,7 @@
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="#">ZaraTech BUS</a>
+					<a class="navbar-brand" href="/">ZaraTech BUS</a>
 				</div>
 
 				<!-- Collect the nav links, forms, and other content for toggling -->
@@ -29,10 +29,11 @@
 					<ul class="nav navbar-nav">
 						<li><a href="/single">Single URL Shortener</a></li>
 						<li><a href="/multi">Multi URL Shortener</a></li>
+						<li><a href="/multi-async">Async Multi URL Shortener</a></li>
 					</ul>
 
 					<ul class="nav navbar-nav navbar-right">
-						<li><a href="#">Contact</a></li>
+						<li><a href="/stats">Stats</a></li>
 					</ul>
 				</div><!-- /.navbar-collapse -->
 			</div><!-- /.container-fluid -->
@@ -42,14 +43,14 @@
 				<h1>Welcome to BUS</h1>
 				<p class="lead">The Best URL Shortener</p>
 				<br>
-				<p>
-					This is the details page for the id ${id}
+				<p th:inline="text">
+					This is the details page for the id [[${id}]]
 				</p>
-				<p>
-					 Date Creation ${date}
+				<p th:inline="text">
+					 Date Creation [[${date}]]
 				</p>
-				<p>
-					URI destination ${target} with ${clicks} clicks and ${visitors} unique visitors
+				<p th:inline="text">
+					URI destination [[${target}]] with [[${clicks}]] clicks and [[${visitors}]] unique visitors
 				</p>
 			</div>
 		</div>

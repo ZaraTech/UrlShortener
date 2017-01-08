@@ -1,28 +1,21 @@
 package urlshortener.zaratech.web;
 
-import java.util.Map;
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import urlshortener.zaratech.core.HeadersManager;
 import urlshortener.zaratech.domain.UrlDetails;
-import urlshortener.common.domain.Click;
-import urlshortener.common.repository.ClickRepository;
 
 @Controller
 public class UrlShortnerWebController {
 
     @Autowired
     private HeadersManager headersManager;
-
-    @Autowired
-    protected ClickRepository clickRepository;
 
     @RequestMapping(value = { "", "/", "/single" }, method = RequestMethod.GET)
     public String indexSingle(HttpServletRequest request) {
@@ -45,15 +38,16 @@ public class UrlShortnerWebController {
     }
 
     @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}+.html", method = RequestMethod.GET)
-    public String showDetails(@PathVariable String id, Map<String, Object> model) {
+    public String showDetails(@PathVariable String id, Model model) {
 
         UrlDetails details = headersManager.getDetails(id);
 
-        model.put("id", id);
-        model.put("date", details.getDate().toString());
-        model.put("target", details.getTarget());
-        model.put("clicks", details.getClicks().toString());
-        model.put("visitors", details.getVisitors());
+        model.addAttribute("id", id);
+        model.addAttribute("date", details.getDate().toString());
+        model.addAttribute("target", details.getTarget());
+        model.addAttribute("clicks", details.getClicks().toString());
+        model.addAttribute("visitors", details.getVisitors());
+        
         return "details";
     }
     
