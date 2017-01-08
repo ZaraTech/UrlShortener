@@ -12,9 +12,9 @@ function getStatistics() {
                 "<div class='text-left'><table class='table table-hover table-bordered'>"
                 + "<thead>"
                 + "<tr>"
-                + "<td>Browser</td>"
-                + "<td>Version</td>"
-                + "<td>Stats</td>"
+                + "<th>Browser</th>"
+                + "<th>Version</th>"
+                + "<th>Click Stats</th>"
                 + "</tr>"
                 + "</thead><tbody>";
 
@@ -23,8 +23,8 @@ function getStatistics() {
             for(var i=0;i<browserLen;i++) {
                 var versionLen=msg.versionList[i].length;
                 for(var j=0;j<versionLen;j++){
-                    // guardar datos de browsers
-                    data += "<tr><td>" +msg.browserList[i]+"</td>"+"<td>" +msg.versionList[i][j]+"</td>"+"<td>" +(msg.clicksforversion[i][j]/msg.clicks)*100+"</td></tr>";
+                    // save browsers data
+                    data += "<tr><td>" +msg.browserList[i]+"</td>"+"<td>" +msg.versionList[i][j]+"</td>"+"<td>" +((msg.clicksforversion[i][j]/msg.clicks)*100).toFixed(2)+" %</td></tr>";
                 }
 
             }
@@ -33,14 +33,14 @@ function getStatistics() {
                 "<div class='text-left'><table class='table table-hover table-bordered'>"
                 + "<thead>"
                 + "<tr>"
-                + "<td>Os</td>"
-                + "<td>Stats</td>"
+                + "<th>Operative System</th>"
+                + "<th>Click Stats</th>"
                 + "</tr>"
                 + "</thead><tbody>";
             var osLen=msg.osList.length;
             for(var i=0;i<osLen;i++) {
-                // guardar datos de browsers
-                data += "<tr><td>" +msg.osList[i]+"</td>"+"<td>" +(msg.clicksforos[i]/msg.clicks)*100+"</td></tr>";
+                // save os data
+                data += "<tr><td>" +msg.osList[i]+"</td>"+"<td>" +((msg.clicksforos[i]/msg.clicks)*100).toFixed(2)+" %</td></tr>";
             }
             data+="</tbody></table></div>";
             $("#result").html(data);

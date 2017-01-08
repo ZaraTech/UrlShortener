@@ -185,10 +185,8 @@ public class SystemTests {
         PrintWriter pw;
         try {
             pw = new PrintWriter(csv);
-            pw.println("http://example.com/, http://example2.com/, http://example3.com/");
+            pw.println("http://example.com/, http://example2.com/,");
             pw.println("http://github.com/, http://unizar.es/, http://google.com/");
-            //pw.println("http://example4.com/, http://example5.com/, http://example6.com/");
-            //pw.println("http://example7.com/, http://example8.com/, http://example9.com/");
 
             pw.flush();
             pw.close();
