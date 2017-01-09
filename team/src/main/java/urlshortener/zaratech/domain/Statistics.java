@@ -1,9 +1,7 @@
 package urlshortener.zaratech.domain;
 
-import java.sql.Date;
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Statistics {

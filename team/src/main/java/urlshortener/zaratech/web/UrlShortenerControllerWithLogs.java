@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
@@ -100,7 +98,7 @@ public class UrlShortenerControllerWithLogs {
     }
 
     @RequestMapping(value = "/link-multi", method = RequestMethod.POST)
-    public ResponseEntity<ShortURL[]> multiShortener(@RequestParam("csv_file") MultipartFile csvFile,
+    public ResponseEntity<ShortURL[]> multiShortener(@RequestParam("file") MultipartFile csvFile,
             @RequestParam(value = "sponsor", required = false) String sponsor, HttpServletRequest request) {
 
         logger.info("Requested new multi-short for CSV file '" + csvFile.getOriginalFilename() + "'");
