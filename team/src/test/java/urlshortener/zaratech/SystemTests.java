@@ -168,7 +168,7 @@ public class SystemTests {
     private ResponseEntity<String> postFile() {
         MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
 
-        parts.add("url", new FileSystemResource(generateCsvFile()));
+        parts.add("file", new FileSystemResource(generateCsvFile()));
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -233,12 +233,12 @@ public class SystemTests {
     private ResponseEntity<String> postFileAsync() {
         MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
 
-        parts.add("url", new FileSystemResource(generateCsvFile()));
+        parts.add("file", new FileSystemResource(generateCsvFile()));
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-        return new TestRestTemplate().postForEntity("http://localhost:" + this.port + "/link-multi-async", parts,
+        return new TestRestTemplate().postForEntity("http://localhost:" + this.port + "/link-multi-async-file", parts,
                 String.class);
     }
 
