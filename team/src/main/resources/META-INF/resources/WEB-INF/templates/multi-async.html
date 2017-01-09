@@ -26,6 +26,12 @@
     from { transform: scale(1) rotate(0deg);}
     to { transform: scale(1) rotate(360deg);}
 }
+
+.center-pills {
+    display: flex;
+    justify-content: center;
+}
+  </style>
 </style>
 
 </head>
@@ -65,14 +71,35 @@
                 <h1>Welcome to BUS</h1>
                 <p class="lead">The Best URL Shortener</p>
                 <br>
-                <form class="col-lg-12" role="form" id="shortener" action="" enctype="multipart/form-data">
-                    <div class="input-group input-group-lg col-sm-offset-4 col-sm-4">
-                        <input type="file" class="form-control file input-lg" style="padding:0px"
-                            title="CSV file containing an URL list to shorten" placeholder="Enter a CSV file" name="url" data-allowed-file-extensions='["csv"]'>
-                        <span class="input-group-btn"><button
-                                class="btn btn-lg btn-primary" type="submit">Short me!</button></span>
-                    </div>
-                </form>
+					<ul class="nav nav-pills center-pills">
+						<li class="active"><a data-toggle="pill" href="#file-pill">CSV File</a></li>
+						<li><a data-toggle="pill" href="#input-pill">Form Input</a></li>
+					</ul>
+					<p>&nbsp;</p>
+					<div class="tab-content">
+						<div id="file-pill" class="tab-pane fade in active">
+							<form class="col-lg-12" role="form" id="shortener1" action="" enctype="multipart/form-data">
+								<div class="input-group input-group-lg col-sm-offset-4 col-sm-4">
+									<input type="file" class="form-control file input-lg" style="padding:0px"
+										title="CSV file containing an URL list to shorten" placeholder="Enter a CSV file" name="file" data-allowed-file-extensions='["csv"]'>
+									<span class="input-group-btn"><button
+											class="btn btn-lg btn-primary" type="submit">Short me!</button></span>
+								</div>
+							</form>
+						</div>
+						
+						<div id="input-pill" class="tab-pane fade">
+							<form class="col-lg-12" role="form" id="shortener2" action="">
+								<div class="input-group col-sm-offset-4 col-sm-4">
+									<textarea type="text" class="form-control custom-control"
+										title="Enter a URL" placeholder="Enter a list of URLs (one per line)" name="input" rows="7" style="resize:none"></textarea>
+									<span class="input-group-addon"><button
+											class="btn btn-lg btn-primary" type="submit">Short me!</button></span>
+								</div>
+							</form>
+						</div>                
+					</div>
+                
             </div>
         </div>
         <div class="row">

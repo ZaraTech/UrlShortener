@@ -1,10 +1,7 @@
 package urlshortener.zaratech;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 import java.io.File;
@@ -16,6 +13,9 @@ import java.util.*;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.internal.matchers.GreaterThan;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,16 +29,21 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
 
 import urlshortener.common.repository.*;
+import urlshortener.zaratech.web.UrlShortenerControllerWithLogs;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @DirtiesContext
 public class SystemTests {
+
+    private static final Logger logger = LoggerFactory.getLogger(SystemTests.class);
+
     @Autowired
     protected ClickRepository clickRepository;
 
@@ -108,16 +113,17 @@ public class SystemTests {
                 is(new MediaType("application", "json", Charset.forName("UTF-8"))));
         ReadContext rc = JsonPath.parse(entity.getBody());
         String fecha = getDate();
-        
+
         // Testing date detail
         assertThat(rc.read("$.created").toString(), is(fecha));
-        
+
         // Testing clicks detail
         long clicks = clickRepository.clicksByHash(rc.read("$.hash").toString());
         entity = new TestRestTemplate().getForEntity("http://localhost:" + this.port + "/f684a3c4", String.class);
         entity = new TestRestTemplate().getForEntity("http://localhost:" + this.port + "/f684a3c4", String.class);
         clicks += 2;
-        assertThat(clickRepository.clicksByHash(rc.read("$.hash").toString()).toString(), is(String.valueOf(((int)clicks))));
+        assertThat(clickRepository.clicksByHash(rc.read("$.hash").toString()).toString(),
+                is(String.valueOf(((int) clicks))));
     }
 
     /*
@@ -125,11 +131,11 @@ public class SystemTests {
      */
     private String getDate() {
         Calendar date = Calendar.getInstance();
-        
+
         int year = date.get(Calendar.YEAR);
         int month = date.get(Calendar.MONTH) + 1;
         int day = date.get(Calendar.DAY_OF_MONTH);
-        
+
         return String.format("%d-%02d-%02d", year, month, day);
     }
 
@@ -147,11 +153,11 @@ public class SystemTests {
         assertThat(entity.getStatusCode(), is(HttpStatus.TEMPORARY_REDIRECT));
         assertThat(entity.getHeaders().getLocation(), is(new URI("http://example.com/")));
 
-        // test last URI --> http://example9.com/
+        // test last URI --> http://google.com/
         entity = new TestRestTemplate().getForEntity("http://localhost:" + this.port + "/5e399431", String.class);
         assertThat(entity.getStatusCode(), is(HttpStatus.TEMPORARY_REDIRECT));
         assertThat(entity.getHeaders().getLocation(), is(new URI("http://google.com/")));
-        
+
         // clean test file
         deleteCsvFile();
     }
@@ -168,6 +174,71 @@ public class SystemTests {
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
         return new TestRestTemplate().postForEntity("http://localhost:" + this.port + "/link-multi", parts,
+                String.class);
+    }
+
+    @Test
+    public void testMultiUploadAsync() throws Exception {
+
+        ResponseEntity<String> postResp = postFileAsync();
+
+        // test if the TASK has been accepted
+        assertThat(postResp.getStatusCode(), is(HttpStatus.ACCEPTED));
+
+        // test if there is an URI which identifies the TASK
+        assertThat(postResp.hasBody(), is(true));
+
+        String taskUrl = postResp.getBody();
+
+        assertNotNull(taskUrl);
+
+        String partsArray[] = taskUrl.split("\":\"");
+
+        assertThat(partsArray.length, is(2));
+
+        taskUrl = partsArray[1];
+        taskUrl = taskUrl.replaceAll("[}\\\"]", "");
+
+        assertThat(taskUrl, not(equalTo("")));
+
+        // test TASK URI
+        ResponseEntity<String> entity = new TestRestTemplate()
+                .getForEntity(taskUrl, String.class);
+        assertThat(entity.getStatusCode(), is(HttpStatus.OK));
+        
+        assertThat(entity.hasBody(), is(true));
+
+        String urlList = entity.getBody();
+
+        assertNotNull(urlList);
+        assertThat(urlList, not(equalTo("")));
+        
+        // test URIs List
+        String[] urls = {"http://example.com/", "http://example2.com/", "http://github.com/", "http://unizar.es/", "http://google.com/"};
+        for(String url : urls){
+            assertTrue(urlList.indexOf(url) > 0);
+        }
+        
+        // test URIs progress
+        int occurances = StringUtils.countOccurrencesOf(urlList, "progress");
+        assertThat(occurances, is(urls.length));
+
+        // clean test file
+        deleteCsvFile();
+    }
+
+    /**
+     * Post a CSV file to the 'link-multi' endpoint
+     */
+    private ResponseEntity<String> postFileAsync() {
+        MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+
+        parts.add("url", new FileSystemResource(generateCsvFile()));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        return new TestRestTemplate().postForEntity("http://localhost:" + this.port + "/link-multi-async", parts,
                 String.class);
     }
 

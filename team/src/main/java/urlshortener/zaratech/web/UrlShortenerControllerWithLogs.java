@@ -18,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -98,21 +100,37 @@ public class UrlShortenerControllerWithLogs {
     }
 
     @RequestMapping(value = "/link-multi", method = RequestMethod.POST)
-    public ResponseEntity<ShortURL[]> multiShortener(@RequestParam("url") MultipartFile csvFile,
+    public ResponseEntity<ShortURL[]> multiShortener(@RequestParam("csv_file") MultipartFile csvFile,
             @RequestParam(value = "sponsor", required = false) String sponsor, HttpServletRequest request) {
 
-        logger.info("Requested new short for CSV file '" + csvFile.getOriginalFilename() + "'");
+        logger.info("Requested new multi-short for CSV file '" + csvFile.getOriginalFilename() + "'");
         
         return UploadManager.multiShortSync(shortURLRepository, csvFile, request);
     }
     
-    @RequestMapping(value = "/link-multi-async", method = RequestMethod.POST)
-    public ResponseEntity<RedirectionDetails> multiShortenerAsync(@RequestParam("url") MultipartFile csvFile,
+    @RequestMapping(value = "/link-multi-async-file", method = RequestMethod.POST)
+    public ResponseEntity<RedirectionDetails> multiShortenerAsyncFile(@RequestParam("file") MultipartFile csvFile,
             @RequestParam(value = "sponsor", required = false) String sponsor, HttpServletRequest request) {
 
-        logger.info("Requested new short for CSV file '" + csvFile.getOriginalFilename() + "'");
+        logger.info("Requested new ASYNC multi-short for CSV file '" + csvFile.getOriginalFilename() + "'");
         
         return UploadManager.multiShortAsync(scheduler, shortURLRepository, tdStore, csvFile, request);
+    }
+    
+    @RequestMapping(value = "/link-multi-async-input", method = RequestMethod.POST)
+    public ResponseEntity<RedirectionDetails> multiShortenerAsyncInput(@RequestParam("input") String urlList,
+            @RequestParam(value = "sponsor", required = false) String sponsor, HttpServletRequest request) {
+
+        logger.info("Requested new ASYNC multi-short for FORM DATA");
+        
+        String[] urls = urlList.split("\r?\n");
+        List<String> urlsList = new LinkedList<String>();
+        
+        for(String url : urls){
+            urlsList.add(url);
+        }
+        
+        return UploadManager.multiShortAsync(scheduler, shortURLRepository, tdStore, urlsList, request);
     }
 
     @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}+", produces = "application/json", method = RequestMethod.GET)
