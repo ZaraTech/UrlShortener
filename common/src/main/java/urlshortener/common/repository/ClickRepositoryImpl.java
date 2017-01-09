@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
-import java.util.List;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -157,12 +157,70 @@ public class ClickRepositoryImpl implements ClickRepository {
 	@Override
 	public List<Click> listAll() {
 		try {
+			log.info("Selected all clicks");
 			return jdbc.query("SELECT * FROM click", rowMapper);
 		} catch (Exception e) {
-			log.debug("Selected all clicks");
 			return null;
 		}
 	}
+
+	@Override
+	public List<Click> listSince(String desde) {
+		try {
+			List<Click> aux=jdbc.query("SELECT * FROM click", rowMapper);
+			Click click;
+			List<Click> filter=new ArrayList<Click>();
+			for(int i=0;i<=aux.size()-1;i++){
+				if(aux.get(i).getCreated().toString().compareTo(desde)>0){
+					click=aux.get(i);
+					filter.add(click);
+				}
+			}
+			log.info("Selected since clicks");
+			return filter;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	@Override
+	public List<Click> listFor(String hasta) {
+		try {
+			List<Click> aux=jdbc.query("SELECT * FROM click", rowMapper);
+			Click click;
+			List<Click> filter=new ArrayList<Click>();
+			for(int i=0;i<=aux.size()-1;i++){
+				if(aux.get(i).getCreated().toString().compareTo(hasta)<0){
+					click=aux.get(i);
+							filter.add(click);
+				}
+			}
+			log.info("Selected for clicks");
+			return filter;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	@Override
+	public List<Click> listSinceAndFor(String desde,String hasta) {
+		try {
+			List<Click> aux=jdbc.query("SELECT * FROM click", rowMapper);
+			Click click;
+			List<Click> filter=new ArrayList<Click>();
+			for(int i=0;i<=aux.size()-1;i++){
+				if(aux.get(i).getCreated().toString().compareTo(hasta)<0 && aux.get(i).getCreated().toString().compareTo(desde)>0){
+					click=aux.get(i);
+					filter.add(click);
+				}
+			}
+			log.debug("Selected since and for clicks");
+			return filter;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
 	@Override
 	public Long clicksByHash(String hash) {
 		try {
