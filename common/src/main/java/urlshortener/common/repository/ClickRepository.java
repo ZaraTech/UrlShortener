@@ -25,4 +25,10 @@ public interface ClickRepository {
 	List<Click> list(Long limit, Long offset);
 
 	List<Click> listAll();
+
+	List<Click> listSince(String desde);
+
+	List<Click> listFor(String hasta);
+
+	List<Click> listSinceAndFor(String desde,String hasta);
 }

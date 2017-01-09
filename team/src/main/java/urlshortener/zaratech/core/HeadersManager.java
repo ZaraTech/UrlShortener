@@ -62,15 +62,15 @@ public class HeadersManager {
             }else{
                 st.updateclicksForBrowserAndVersion(browser,st.getIndexVersion(clicks.get(i).getVersion()));
             }
-
-            if(st.getIndexOs(clicks.get(i).getOs())==-1){
-                if(clicks.get(i).getOs().indexOf("Linux")==-1){
-                    st.insertOs(clicks.get(i).getOs());
-                }else{
-                    st.insertOs("Linux");
-                }
+            String os = clicks.get(i).getOs();
+            if(os.indexOf("Linux")>=0){
+                os = "Linux";
+            }
+            int index = st.getIndexOs(os);
+            if(index < 0){
+                st.insertOs(os);
             }else{
-                st.updateclicksForOs(st.getIndexOs(clicks.get(i).getOs()));
+                st.updateclicksForOs(index);
             }
         }
         return st;
