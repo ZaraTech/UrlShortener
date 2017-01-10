@@ -12,6 +12,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -146,12 +147,21 @@ public class UploadManager {
             return null;
         }
     }
-
+    
     public static ResponseEntity<RedirectionDetails> multiShortAsync(Scheduler scheduler,
             ShortURLRepository shortURLRepository, UploadTaskDataStore tdStore, MultipartFile csvFile,
             HttpServletRequest request) {
-
+        
         LinkedList<String> urls = processFile(csvFile);
+        
+        return multiShortAsync(scheduler, shortURLRepository, tdStore, urls, request);
+    }
+
+    public static ResponseEntity<RedirectionDetails> multiShortAsync(Scheduler scheduler,
+            ShortURLRepository shortURLRepository, UploadTaskDataStore tdStore, List<String> urls,
+            HttpServletRequest request) {
+
+        
         String ip = extractIP(request);
 
         String urlsStr = "";
