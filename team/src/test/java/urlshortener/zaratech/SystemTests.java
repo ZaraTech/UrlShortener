@@ -13,7 +13,6 @@ import java.util.*;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.internal.matchers.GreaterThan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +34,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
 
 import urlshortener.common.repository.*;
-import urlshortener.zaratech.web.UrlShortenerControllerWithLogs;
+import urlshortener.zaratech.store.RedisSrv;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -179,6 +178,8 @@ public class SystemTests {
 
     @Test
     public void testMultiUploadAsync() throws Exception {
+        
+        RedisSrv redis = new RedisSrv();
 
         ResponseEntity<String> postResp = postFileAsync();
 
@@ -225,6 +226,9 @@ public class SystemTests {
 
         // clean test file
         deleteCsvFile();
+        
+        // stop redis server
+        redis.stop();
     }
 
     /**
