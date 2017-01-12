@@ -37,6 +37,11 @@ public class UrlShortnerWebController {
         return "statistics";
     }
 
+    @RequestMapping(value = "/stats-stream", method = RequestMethod.GET)
+    public String showStatisticsStream(HttpServletRequest request) {
+        return "statistics-stream";
+    }
+
     @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}+.html", method = RequestMethod.GET)
     public String showDetails(@PathVariable String id, Model model) {
 

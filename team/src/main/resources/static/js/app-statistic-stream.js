@@ -1,6 +1,5 @@
 $(document).ready(
     function() {
-
         getStatistics();
         $('#form').submit(
             function(event){
@@ -36,8 +35,11 @@ function getStatisticsFiltered(data) {
 }
 
 function getData(msg) {
-    $( "#datepicker" ).datepicker({ dateFormat: 'yy-mm-dd' });
-    $( "#datepicker2" ).datepicker({ dateFormat: 'yy-mm-dd' });
+    var ws = new WebSocket("ws://" + window.location.host + "/statistic-stream");
+    ws.onmessage = function(res) {
+
+    };
+
     var info = msg.jsonOs;
     var info2 = msg.jsonVersion;
     var chart1 = new Highcharts.Chart({
@@ -45,23 +47,8 @@ function getData(msg) {
             renderTo: 'chart1',
             type: 'pie'
         },
-        plotOptions: {
-            pie: {
-                allowPointSelect: true,
-                cursor: 'pointer',
-                dataLabels: {
-                    enabled: true,
-                    style: {
-                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-                    }
-                }
-            }
-        },
         series: [{
-            data: info,
-            sliced: true,
-            selected: true,
-            name:"Os"
+            data: info
         }]
     });
     chart1.setTitle({text: "Chart Os"});
@@ -70,23 +57,8 @@ function getData(msg) {
             renderTo: 'chart2',
             type: 'pie'
         },
-        plotOptions: {
-            pie: {
-                allowPointSelect: true,
-                cursor: 'pointer',
-                dataLabels: {
-                    enabled: true,
-                    style: {
-                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-                    }
-                }
-            }
-        },
         series: [{
-            data: info2,
-            sliced: true,
-            selected: true,
-            name:"Versions"
+            data: info2
         }]
     });
     chart2.setTitle({text: "Chart Version"});

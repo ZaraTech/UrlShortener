@@ -90,6 +90,27 @@ public class UrlShortenerControllerWithLogs {
         return new ResponseEntity<Statistics>(statistics, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/statistics-stream", produces = "application/json", method = RequestMethod.GET)
+    public ResponseEntity<Statistics> showStatisticsStream(@RequestParam(value = "desde", required = false) String desde,
+                                                     @RequestParam(value = "hasta", required = false) String hasta, HttpServletRequest request) {
+        logger.info("Requested filter with params " + desde+"  "+hasta);
+        Statistics statistics=new Statistics();
+        if(desde==null && hasta==null || desde.equals("") && hasta.equals("")){
+            logger.info("Requested filter all " + desde+"  "+hasta);
+            statistics=headersManager.getStatistics(clickRepository.listAll());
+        }else if(hasta.equals("") && !desde.equals("")){
+            logger.info("Requested filter only since " + desde+"  "+hasta);
+            statistics=headersManager.getStatistics(clickRepository.listSince(desde));
+        }else if(desde.equals("") && !hasta.equals("")){
+            logger.info("Requested filter only for " + desde+"  "+hasta);
+            statistics=headersManager.getStatistics(clickRepository.listFor(hasta));
+        }else{
+            logger.info("Requested filter for and since " + desde+"  "+hasta);
+            statistics=headersManager.getStatistics(clickRepository.listSinceAndFor(desde,hasta));
+        }
+        return new ResponseEntity<Statistics>(statistics, HttpStatus.OK);
+    }
+
     private void createAndSaveClick(String hash, String ip,String browser,String version,String os) {
         Click cl = new Click(null, hash, new Date(System.currentTimeMillis()), null, browser,version,os, null, ip, null);
         cl = clickRepository.save(cl);
