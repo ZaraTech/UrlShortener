@@ -13,6 +13,7 @@ dependencies {
 
     compile 'commons-validator:commons-validator:1.5.1'
 	compile 'com.google.guava:guava:19.0'
+    compile 'com.google.code.gson:gson:2.2.4'
 
     testCompile 'org.springframework.boot:spring-boot-starter-test:1.4.0.RELEASE'
     testCompile 'com.jayway.jsonpath:json-path:2.2.0'

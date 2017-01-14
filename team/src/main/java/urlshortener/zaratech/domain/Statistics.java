@@ -1,13 +1,24 @@
 package urlshortener.zaratech.domain;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.Gson;
+
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import urlshortener.zaratech.domain.StatsChartData;
 
 public class Statistics {
     /*
     * Class atributes
     * */
+
+    @JsonProperty("jsonOs")
+    private List<StatsChartData> jsonOsData;
+
+    @JsonProperty("jsonVersion")
+    private List<StatsChartData> jsonVersionData;
 
     @JsonProperty("browserList")
     private List<String> browsers;
@@ -29,6 +40,8 @@ public class Statistics {
 
     @JsonProperty("clicksforos")
     private List<Integer> clicksForOs;
+
+    private static final Logger logger = LoggerFactory.getLogger(Statistics.class);
     /*
     * Class constructor
     * */
@@ -39,6 +52,8 @@ public class Statistics {
         clicksForBrowser=new  ArrayList<Integer>();
         clicksForBrowserAndVersion=new  ArrayList<List<Integer>>();
         clicksForOs=new  ArrayList<Integer>();
+        jsonOsData=new ArrayList<StatsChartData>();
+        jsonVersionData=new ArrayList<StatsChartData>();
     }
 
     //Getters
@@ -55,11 +70,14 @@ public class Statistics {
     }
 
     public float getUseOs(int index){
-        return (this.clicksForOs.get(index)/totalClicks)*100;
+        float r=(float)this.clicksForOs.get(index)/totalClicks;
+        return r;
     }
 
     public float getUseBrowserAndVersion(int index1,int index2){
-        return (this.clicksForBrowserAndVersion.get(index1).get(index2)/totalClicks)*100;
+        float r=(float)this.clicksForBrowserAndVersion.get(index1).get(index2)/totalClicks;
+        logger.info("Use of version "+r);
+        return r;
     }
 
     public int getIndexBrowser(String browser) {
@@ -94,6 +112,17 @@ public class Statistics {
         return index;
     }
 
+    public List<String> getListOs(){
+        return this.os;
+    }
+
+    public List<String> getListBrowser(){
+        return this.browsers;
+    }
+
+    public List<List<String>> getListVersions(){
+        return this.versions;
+    }
     //Setters
     public void setBrowser(int index,String browser){
         this.browsers.set(index,browser);
@@ -129,6 +158,32 @@ public class Statistics {
         this.totalClicks=total;
     }
 
+    public void insertCharts(){
+        List<String> aux=getListOs();
+        if(aux!=null){
+            for(int i=0;i<=aux.size()-1;i++){
+                String nombre=aux.get(i);
+                float y=getUseOs(i);
+                StatsChartData data=new StatsChartData(nombre,y);
+                this.jsonOsData.add(data);
+            }
+        }
+        Gson gson = new Gson();
+        gson.toJson(jsonOsData);
+        List<List<String>> aux2=getListVersions();
+        if(aux2!=null){
+            for(int i=0;i<=aux2.size()-1;i++){
+                for(int j=0;j<=aux2.get(i).size()-1;j++){
+                    String nombre=getBrowser(i)+" "+aux2.get(i).get(j);
+                    float y=getUseBrowserAndVersion(i,j);
+                    StatsChartData data=new StatsChartData(nombre,y);
+                    this.jsonVersionData.add(data);
+                }
+
+            }
+        }
+        gson.toJson(jsonVersionData);
+    }
     //Updates
     public void updateclicksForBrowser(int index){
         int aux=clicksForBrowser.get(index);

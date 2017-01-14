@@ -1,7 +1,11 @@
 $(document).ready(
-    function() {
 
-        getStatistics();
+    function() {
+        var ws = new WebSocket("ws://" + window.location.host + "/stats-stream");
+        ws.onmessage = function(res) {
+            getStatistics();
+        };
+
         $('#form').submit(
             function(event){
                 event.preventDefault();

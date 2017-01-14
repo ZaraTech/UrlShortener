@@ -73,6 +73,7 @@ public class HeadersManager {
                 st.updateclicksForOs(index);
             }
         }
+        st.insertCharts();
         return st;
     }
     private ShortURL getUrlDetails(String id) {
