@@ -73,21 +73,35 @@ public class UrlShortenerControllerWithLogs {
     public ResponseEntity<Statistics> showStatistics(@RequestParam(value = "desde", required = false) String desde,
                                                      @RequestParam(value = "hasta", required = false) String hasta, HttpServletRequest request) {
         logger.info("Requested filter with params " + desde+"  "+hasta);
-        Statistics statistics=new Statistics();
-        if(desde==null && hasta==null || desde.equals("") && hasta.equals("")){
-            logger.info("Requested filter all " + desde+"  "+hasta);
-            statistics=headersManager.getStatistics(clickRepository.listAll());
-        }else if(hasta.equals("") && !desde.equals("")){
-            logger.info("Requested filter only since " + desde+"  "+hasta);
-            statistics=headersManager.getStatistics(clickRepository.listSince(desde));
-        }else if(desde.equals("") && !hasta.equals("")){
-            logger.info("Requested filter only for " + desde+"  "+hasta);
-            statistics=headersManager.getStatistics(clickRepository.listFor(hasta));
-        }else{
-            logger.info("Requested filter for and since " + desde+"  "+hasta);
-            statistics=headersManager.getStatistics(clickRepository.listSinceAndFor(desde,hasta));
+        
+        List<Click> clicks;
+        
+        if (desde == null && hasta == null || desde.equals("") && hasta.equals("")) {
+            logger.info("Requested filter all " + desde + "  " + hasta);
+            clicks = clickRepository.listAll();
+            
+        } else if (hasta.equals("") && !desde.equals("")) {
+            logger.info("Requested filter only since " + desde + "  " + hasta);
+            clicks = clickRepository.listSince(desde);
+            
+        } else if (desde.equals("") && !hasta.equals("")) {
+            logger.info("Requested filter only for " + desde + "  " + hasta);
+            clicks = clickRepository.listFor(hasta);
+            
+        } else {
+            logger.info("Requested filter for and since " + desde + "  " + hasta);
+            clicks = clickRepository.listSinceAndFor(desde, hasta);
         }
-        return new ResponseEntity<Statistics>(statistics, HttpStatus.OK);
+        
+        
+        if(clicks != null){
+            Statistics statistics = headersManager.getStatistics(clicks);
+            return new ResponseEntity<Statistics>(statistics, HttpStatus.OK);
+            
+        } else {
+            logger.info("CLICKS NULL!!!!");
+            return new ResponseEntity<Statistics>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @RequestMapping(value = "/statistics-stream", produces = "application/json", method = RequestMethod.GET)

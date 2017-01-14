@@ -79,8 +79,6 @@ public class UploadManager {
             ShortURL su = createAndSaveIfValid(shortURLRepository, urlBase, url, UUID.randomUUID().toString(), ip);
 
             if (su != null) {
-                HttpHeaders h = new HttpHeaders();
-                h.setLocation(su.getUri());
                 su = QrManager.getUriWithQR(su, vCardFName, vCardCheckbox, errorRadio);
                 if (su != null) {
                     return su;

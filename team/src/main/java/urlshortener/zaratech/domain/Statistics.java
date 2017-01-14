@@ -90,13 +90,11 @@ public class Statistics {
         return index;
     }
 
-    public int getIndexVersion(String version) {
+    public int getIndexVersion(int browserIndex, String version) {
         int index=-1;
-        for (int i = 0; i <= this.versions.size() - 1; i++) {
-            for(int j=0;j<=this.versions.get(i).size()-1;j++){
-                if(this.versions.get(i).get(j).equals(version)){
-                    index=j;
-                }
+        for(int i=0;i<=this.versions.get(browserIndex).size()-1;i++){
+            if(this.versions.get(browserIndex).get(i).equals(version)){
+                index=i;
             }
         }
         return index;

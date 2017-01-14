@@ -5,6 +5,10 @@ $(document).ready(
         $("#shortener1").submit(
             function(event) {
                 event.preventDefault();
+                
+                // delete previous results
+                $("#result").html("");
+                
                 var data = new FormData(this);
                 $.ajax({
                     type : "POST",
@@ -17,9 +21,27 @@ $(document).ready(
                         jobUrl=msg.jobUrl;
                         getTaskData();
                     },
-                    error : function() {
+                    error : function (jqXHR, exception) {
+                        var msg = '';
+                        if (jqXHR.status === 0) {
+                            msg = 'Can not connect to the server. Verify Network.';
+                        } else if (jqXHR.status == 400) {
+                            msg = 'Bad resquest. [HTTP Code 400]';
+                        } else if (jqXHR.status == 404) {
+                            msg = 'Requested page not found. [HTTP Code 404]';
+                        } else if (jqXHR.status == 500) {
+                            msg = 'Internal Server Error. [HTTP Code 500]';
+                        } else if (exception === 'parsererror') {
+                            msg = 'Requested JSON parse failed.';
+                        } else if (exception === 'timeout') {
+                            msg = 'Time out error.';
+                        } else if (exception === 'abort') {
+                            msg = 'Ajax request aborted.';
+                        } else {
+                            msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                        }
                         $("#result").html(
-                                "<div class='alert alert-danger lead'>ERROR</div>");
+                            "<div class='alert alert-danger lead'>ERROR: "+ msg +"</div>");
                     }
                 });
             }
@@ -28,6 +50,10 @@ $(document).ready(
         $("#shortener2").submit(
             function(event) {
                 event.preventDefault();
+                
+                // delete previous results
+                $("#result").html("");
+                
                 $.ajax({
                     type : "POST",
                     url : "/link-multi-async-input",
@@ -36,9 +62,25 @@ $(document).ready(
                         jobUrl=msg.jobUrl;
                         getTaskData();
                     },
-                    error : function() {
+                    error : function (jqXHR, exception) {
+                        var msg = '';
+                        if (jqXHR.status === 0) {
+                            msg = 'Can not connect to the server. Verify Network.';
+                        } else if (jqXHR.status == 404) {
+                            msg = 'Requested page not found. [404]';
+                        } else if (jqXHR.status == 500) {
+                            msg = 'Internal Server Error [500].';
+                        } else if (exception === 'parsererror') {
+                            msg = 'Requested JSON parse failed.';
+                        } else if (exception === 'timeout') {
+                            msg = 'Time out error.';
+                        } else if (exception === 'abort') {
+                            msg = 'Ajax request aborted.';
+                        } else {
+                            msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                        }
                         $("#result").html(
-                                "<div class='alert alert-danger lead'>ERROR</div>");
+                            "<div class='alert alert-danger lead'>ERROR: "+ msg +"</div>");
                     }
                 });
             }
@@ -105,9 +147,25 @@ function getTaskData(){
             }                       
             
         },
-        error : function() {
+        error : function (jqXHR, exception) {
+            var msg = '';
+            if (jqXHR.status === 0) {
+                msg = 'Can not connect to the server. Verify Network.';
+            } else if (jqXHR.status == 404) {
+                msg = 'Requested page not found. [404]';
+            } else if (jqXHR.status == 500) {
+                msg = 'Internal Server Error [500].';
+            } else if (exception === 'parsererror') {
+                msg = 'Requested JSON parse failed.';
+            } else if (exception === 'timeout') {
+                msg = 'Time out error.';
+            } else if (exception === 'abort') {
+                msg = 'Ajax request aborted.';
+            } else {
+                msg = 'Uncaught Error.\n' + jqXHR.responseText;
+            }
             $("#result").html(
-                "<div class='alert alert-danger lead'>ERROR</div>");
+                "<div class='alert alert-danger lead'>ERROR: "+ msg +"</div>");
         }
     });
 }
