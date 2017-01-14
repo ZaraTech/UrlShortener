@@ -47,32 +47,46 @@ public class HeadersManager {
 
         return new UserAgentDetails(agent.getName(), browserVers.toVersionString(), os.getName());
     }
-    public Statistics getStatistics(List<Click> clicks){
-        Statistics st=new Statistics();
+
+    public Statistics getStatistics(List<Click> clicks) {
+        Statistics st = new Statistics();
         st.addTotal(clicks.size());
-        for (int i = 0; i <= clicks.size() - 1; i++) {
-            if(st.getIndexBrowser(clicks.get(i).getBrowser())==-1){
-                st.insertBrowser(clicks.get(i).getBrowser());
-            }else{
-                st.updateclicksForBrowser(st.getIndexBrowser(clicks.get(i).getBrowser()));
+        
+        for(Click click : clicks){
+            
+            if (st.getIndexBrowser(click.getBrowser()) == -1) {
+                logger.info("NEW browser "+ click.getBrowser()); 
+                st.insertBrowser(click.getBrowser());
+            } else {
+                logger.info("OLD browser "+ click.getBrowser());
+                st.updateclicksForBrowser(st.getIndexBrowser(click.getBrowser()));
             }
-            int browser=st.getIndexBrowser(clicks.get(i).getBrowser());
-            if(st.getIndexVersion(clicks.get(i).getVersion())==-1){
-                st.insertVersion(browser,clicks.get(i).getVersion());
-            }else{
-                st.updateclicksForBrowserAndVersion(browser,st.getIndexVersion(clicks.get(i).getVersion()));
+
+            int browserIndex = st.getIndexBrowser(click.getBrowser());
+            
+            if (st.getIndexVersion(browserIndex, click.getVersion()) == -1) {
+                logger.info("NEW version "+ click.getVersion());
+                st.insertVersion(browserIndex, click.getVersion());
+            } else {
+                int versionIndex = st.getIndexVersion(browserIndex, click.getVersion());
+                logger.info("OLD version "+ click.getVersion());
+                
+                st.updateclicksForBrowserAndVersion(browserIndex, versionIndex);
             }
-            String os = clicks.get(i).getOs();
-            if(os.indexOf("Linux")>=0){
+
+            String os = click.getOs();
+            if (os.indexOf("Linux") >= 0) {
                 os = "Linux";
             }
+
             int index = st.getIndexOs(os);
-            if(index < 0){
+            if (index < 0) {
                 st.insertOs(os);
-            }else{
+            } else {
                 st.updateclicksForOs(index);
             }
         }
+
         st.insertCharts();
         return st;
     }

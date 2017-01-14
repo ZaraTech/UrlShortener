@@ -56,6 +56,8 @@ dependencies {
     compile 'org.thymeleaf:thymeleaf:3.0.3.RELEASE'
     compile 'org.thymeleaf:thymeleaf-spring4:3.0.3.RELEASE'
     compile 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:2.0.3'
+    
+    compile 'com.google.code.gson:gson:2.2.4'
 }
 
 war {

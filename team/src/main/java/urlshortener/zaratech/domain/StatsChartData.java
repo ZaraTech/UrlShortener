@@ -1,22 +1,28 @@
 package urlshortener.zaratech.domain;
 
-public class StatsChartData{
-    private String nombre;
+public class StatsChartData {
+
+    private String name;
     private float y;
-    public StatsChartData(String nombre,float y){
-        this.nombre=nombre;
-        this.y=y;
+
+    public StatsChartData(String nombre, float y) {
+        this.name = nombre;
+        this.y = y;
     }
-    public void setNombre(String nombre){
-        this.nombre=nombre;
+
+    public void setName(String nombre) {
+        this.name = nombre;
     }
-    public void setY(float y){
-        this.y=y;
+
+    public void setY(float y) {
+        this.y = y;
     }
-    public String getNombre(){
-        return this.nombre;
+
+    public String getName() {
+        return this.name;
     }
-    public float getY(){
+
+    public float getY() {
         return this.y;
     }
 }
