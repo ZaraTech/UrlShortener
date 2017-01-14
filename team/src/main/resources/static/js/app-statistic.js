@@ -19,7 +19,9 @@ function getStatistics() {
         type : "GET",
         url : "/statistics",
         success : function(msg) {
-            getData(msg);
+            loadData(msg);
+            loadCalendar();
+            loadChart(msg);
         }
     } );
 }
@@ -30,66 +32,15 @@ function getStatisticsFiltered(data) {
         url : "/statistics",
         data: data,
         success : function(msg) {
-            getData(msg);
+            loadData(msg);
+            loadCalendar();
+            loadChart(msg);
         }
     } );
 }
 
-function getData(msg) {
-    $( "#datepicker" ).datepicker({ dateFormat: 'yy-mm-dd' });
-    $( "#datepicker2" ).datepicker({ dateFormat: 'yy-mm-dd' });
-    var info = msg.jsonOs;
-    var info2 = msg.jsonVersion;
-    var chart1 = new Highcharts.Chart({
-        chart: {
-            renderTo: 'chart1',
-            type: 'pie'
-        },
-        plotOptions: {
-            pie: {
-                allowPointSelect: true,
-                cursor: 'pointer',
-                dataLabels: {
-                    enabled: true,
-                    style: {
-                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-                    }
-                }
-            }
-        },
-        series: [{
-            data: info,
-            sliced: true,
-            selected: true,
-            name:"Os"
-        }]
-    });
-    chart1.setTitle({text: "Chart Os"});
-    var chart2 = new Highcharts.Chart({
-        chart: {
-            renderTo: 'chart2',
-            type: 'pie'
-        },
-        plotOptions: {
-            pie: {
-                allowPointSelect: true,
-                cursor: 'pointer',
-                dataLabels: {
-                    enabled: true,
-                    style: {
-                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-                    }
-                }
-            }
-        },
-        series: [{
-            data: info2,
-            sliced: true,
-            selected: true,
-            name:"Versions"
-        }]
-    });
-    chart2.setTitle({text: "Chart Version"});
+function loadData(msg) {
+
     var data="";
     data+=
         "<div class='text-left'><table class='table table-hover table-bordered' id='data'>"
@@ -130,4 +81,64 @@ function getData(msg) {
     $("#result").html(data);
 
 
+}
+function loadCalendar(){
+    $( "#datepicker" ).datepicker({ dateFormat: 'yy-mm-dd' });
+    $( "#datepicker2" ).datepicker({ dateFormat: 'yy-mm-dd' });
+}
+function loadChart(msg){
+
+    var info = msg.jsonOs;
+    var info2 = msg.jsonVersion;
+
+    var chart2 = new Highcharts.Chart({
+        chart: {
+            renderTo: 'chart2',
+            type: 'pie'
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: true,
+                    style: {
+                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                    }
+                }
+            }
+        },
+        series: [{
+            data: info2,
+            sliced: true,
+            selected: true,
+            name:"Versions"
+        }]
+    });
+    chart2.setTitle({text: "Browsers"});
+    var chart1 = new Highcharts.Chart({
+        chart: {
+            renderTo: 'chart1',
+            type: 'pie'
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: true,
+                    style: {
+                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                    }
+                }
+            }
+        },
+        series: [{
+            data: info,
+            sliced: true,
+            selected: true,
+            name:"Os"
+        }]
+    });
+    chart1.setTitle({text: "Operative System"});
 }

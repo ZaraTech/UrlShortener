@@ -7,7 +7,7 @@ import com.google.gson.Gson;
 
 import java.util.*;
 
-import urlshortener.zaratech.domain.Data;
+import urlshortener.zaratech.domain.StatsChartData;
 
 public class Statistics {
     /*
@@ -15,10 +15,10 @@ public class Statistics {
     * */
 
     @JsonProperty("jsonOs")
-    private List<Data> jsonOsData;
+    private List<StatsChartData> jsonOsData;
 
     @JsonProperty("jsonVersion")
-    private List<Data> jsonVersionData;
+    private List<StatsChartData> jsonVersionData;
 
     @JsonProperty("browserList")
     private List<String> browsers;
@@ -52,8 +52,8 @@ public class Statistics {
         clicksForBrowser=new  ArrayList<Integer>();
         clicksForBrowserAndVersion=new  ArrayList<List<Integer>>();
         clicksForOs=new  ArrayList<Integer>();
-        jsonOsData=new ArrayList<Data>();
-        jsonVersionData=new ArrayList<Data>();
+        jsonOsData=new ArrayList<StatsChartData>();
+        jsonVersionData=new ArrayList<StatsChartData>();
     }
 
     //Getters
@@ -164,7 +164,7 @@ public class Statistics {
             for(int i=0;i<=aux.size()-1;i++){
                 String nombre=aux.get(i);
                 float y=getUseOs(i);
-                Data data=new Data(nombre,y);
+                StatsChartData data=new StatsChartData(nombre,y);
                 this.jsonOsData.add(data);
             }
         }
@@ -176,7 +176,7 @@ public class Statistics {
                 for(int j=0;j<=aux2.get(i).size()-1;j++){
                     String nombre=getBrowser(i)+" "+aux2.get(i).get(j);
                     float y=getUseBrowserAndVersion(i,j);
-                    Data data=new Data(nombre,y);
+                    StatsChartData data=new StatsChartData(nombre,y);
                     this.jsonVersionData.add(data);
                 }
 

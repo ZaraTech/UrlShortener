@@ -1,9 +1,9 @@
 package urlshortener.zaratech.domain;
 
-public class Data{
+public class StatsChartData{
     private String nombre;
     private float y;
-    public Data(String nombre,float y){
+    public StatsChartData(String nombre,float y){
         this.nombre=nombre;
         this.y=y;
     }
