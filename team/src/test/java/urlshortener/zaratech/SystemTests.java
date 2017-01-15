@@ -78,9 +78,9 @@ public class SystemTests {
         assertThat(rc.read("$.hash"), is("f684a3c4"));
         assertThat(rc.read("$.uri"), is("http://localhost:" + this.port + "/f684a3c4"));
         assertThat(rc.read("$.target"), is("http://example.com/"));
-        URI uriQR = new URI(
-                "http://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=" + rc.read("$.uri") + "&choe=UTF-8&chld=L");
-        assertThat(rc.read("$.qr"), is(uriQR.toString()));
+        entity = new TestRestTemplate()
+                .getForEntity("http://localhost:" + this.port + "/qr/f684a3c4?errorCorrection=L", String.class);
+        assertThat(entity.getStatusCode(), is(HttpStatus.OK));
 
         // TODO comprobar que una peticion HTTP GET a la uri original no es una
         // redireccion a la misma uri

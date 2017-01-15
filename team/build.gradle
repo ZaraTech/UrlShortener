@@ -58,6 +58,8 @@ dependencies {
     compile 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:2.0.3'
     
     compile 'com.google.code.gson:gson:2.2.4'
+    
+    compile 'com.google.zxing:core:3.3.0'
 }
 
 war {

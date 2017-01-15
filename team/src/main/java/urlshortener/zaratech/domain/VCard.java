@@ -9,6 +9,8 @@ public class VCard {
 	private String fName;
 	private String name;
 	private URI uri;
+	private String start = "BEGIN:VCARD\nVERSION:4.0\n";
+	private String end = "END:VCARD";
 
 	public VCard(String name, URI uri) {
 		this.fName = name;
@@ -59,13 +61,29 @@ public class VCard {
 	}
 
 	/**
+     * Returns a string containing the information associated with the VCard
+     * 
+     */
+    public String getVCard(){
+        
+        String vCard = "";
+        String fullName = "FN:" + getfName();
+        String name = "N:" + getName();
+        String uri = "URL:" + getUri().toString();
+        
+        // Build VCard
+        vCard = start + name + "\n" + fullName + "\n" + uri.toString() + "\n" + end;
+
+        
+        return vCard;
+    }
+    
+	/**
 	 * Returns a string containing the information associated with the VCard in
 	 * URL format.
 	 */
 	public String getEncodedVCard() {
 
-		String start = "BEGIN:VCARD\nVERSION:4.0\n";
-		String end = "END:VCARD";
 		String vCard = "";
 		String fullName = "FN:" + getfName();
 		String name = "N:" + getName();
