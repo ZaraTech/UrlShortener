@@ -26,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.hash.Hashing;
+
 import urlshortener.common.domain.ShortURL;
 import urlshortener.common.repository.ShortURLRepository;
 import urlshortener.common.web.UrlShortenerController;
@@ -36,18 +37,20 @@ import urlshortener.zaratech.domain.UploadTaskData;
 import urlshortener.zaratech.scheduling.Scheduler;
 import urlshortener.zaratech.scheduling.UploadTask;
 import urlshortener.zaratech.store.UploadTaskDataStore;
+import urlshortener.zaratech.web.BaseUrlManager;
 
 public class UploadManager {
 
     private static final Logger logger = LoggerFactory.getLogger(UploadManager.class);
 
     public static ResponseEntity<ShortURL> singleShort(ShortURLRepository shortURLRepository, String url,
-            HttpServletRequest request, String vCardFName, Boolean vCardCheckbox, String errorRadio) {
+            HttpServletRequest request, String vCardFName, Boolean vCardCheckbox, String errorCorrection) {
 
         String ip = extractIP(request);
 
         try {
-            ShortURL su = singleShort(shortURLRepository, null, url, ip, vCardFName, vCardCheckbox, errorRadio);
+            String urlBase = BaseUrlManager.getLocalBaseUrl(request);
+            ShortURL su = singleShort(shortURLRepository, urlBase, url, ip, vCardFName, vCardCheckbox, errorCorrection);
 
             if (su != null) {
                 HttpHeaders h = new HttpHeaders();
@@ -60,15 +63,16 @@ public class UploadManager {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     public static ShortURL singleShort(ShortURLRepository shortURLRepository, String urlBase, String url, String ip)
             throws NoQrException, RedirectionException {
         return singleShort(shortURLRepository, urlBase, url, ip, null, false, null);
     }
 
-    public static ShortURL singleShort(ShortURLRepository shortURLRepository, String urlBase, String url, String ip, String vCardFName, Boolean vCardCheckbox, String errorRadio)
-            throws NoQrException, RedirectionException {
-        
+    public static ShortURL singleShort(ShortURLRepository shortURLRepository, String urlBase, String url, String ip,
+            String vCardFName, Boolean vCardCheckbox, String errorCorrection)
+                    throws NoQrException, RedirectionException {
+
         if (RedirectionManager.isRedirectedToSelf(url)) {
             logger.info("Uri redirects to itself, short url can't be created");
             return null;
@@ -79,7 +83,10 @@ public class UploadManager {
             ShortURL su = createAndSaveIfValid(shortURLRepository, urlBase, url, UUID.randomUUID().toString(), ip);
 
             if (su != null) {
-                su = QrManager.getUriWithQR(su, vCardFName, vCardCheckbox, errorRadio);
+                
+                // QR Manager
+                su = QrManager.getLocalUriWithQR(su, urlBase, vCardFName, vCardCheckbox, errorCorrection);
+                
                 if (su != null) {
                     return su;
                 } else {
@@ -93,12 +100,13 @@ public class UploadManager {
     }
 
     public static ResponseEntity<ShortURL[]> multiShortSync(ShortURLRepository shortURLRepository,
-            MultipartFile csvFile, HttpServletRequest request) {
+            MultipartFile csvFile, HttpServletRequest request, String vCardFName, Boolean vCardCheckbox,
+            String errorCorrection) {
 
         LinkedList<String> urls = processFile(csvFile);
         String ip = extractIP(request);
 
-        ShortURL[] su = multiShort(shortURLRepository, urls, ip);
+        ShortURL[] su = multiShort(shortURLRepository, urls, ip, vCardFName, vCardCheckbox, errorCorrection, request);
 
         if (su != null) {
             HttpHeaders h = new HttpHeaders();
@@ -110,7 +118,8 @@ public class UploadManager {
 
     }
 
-    private static ShortURL[] multiShort(ShortURLRepository shortURLRepository, LinkedList<String> urls, String ip) {
+    private static ShortURL[] multiShort(ShortURLRepository shortURLRepository, LinkedList<String> urls, String ip,
+            String vCardFName, Boolean vCardCheckbox, String errorCorrection, HttpServletRequest request) {
         ShortURL[] su = new ShortURL[urls.size()];
 
         if (validateUrlList(urls)) {
@@ -120,10 +129,11 @@ public class UploadManager {
                 try {
                     if (!RedirectionManager.isRedirectedToSelf(url)) {
 
-                        ShortURL tmpSu = createAndSaveIfValid(shortURLRepository, null, url, UUID.randomUUID().toString(),
-                                ip);
+                        ShortURL tmpSu = createAndSaveIfValid(shortURLRepository, null, url,
+                                UUID.randomUUID().toString(), ip);
 
-                        ShortURL tmpSu2 = QrManager.getUriWithQR(tmpSu);
+                        String urlBase = BaseUrlManager.getLocalBaseUrl(request);
+                        ShortURL tmpSu2 = QrManager.getLocalUriWithQR(tmpSu, urlBase, vCardFName, vCardCheckbox, errorCorrection);
 
                         if (tmpSu2 != null) {
                             su[i] = tmpSu2;
@@ -145,13 +155,13 @@ public class UploadManager {
             return null;
         }
     }
-    
+
     public static ResponseEntity<RedirectionDetails> multiShortAsync(Scheduler scheduler,
             ShortURLRepository shortURLRepository, UploadTaskDataStore tdStore, MultipartFile csvFile,
             HttpServletRequest request) {
-        
+
         LinkedList<String> urls = processFile(csvFile);
-        
+
         return multiShortAsync(scheduler, shortURLRepository, tdStore, urls, request);
     }
 
@@ -159,7 +169,6 @@ public class UploadManager {
             ShortURLRepository shortURLRepository, UploadTaskDataStore tdStore, List<String> urls,
             HttpServletRequest request) {
 
-        
         String ip = extractIP(request);
 
         String urlsStr = "";
@@ -183,7 +192,7 @@ public class UploadManager {
         // save pending state
         tdStore.save(details);
 
-        String baseUrl = "http://" + request.getLocalName() + ":" + request.getServerPort();
+        String baseUrl = BaseUrlManager.getLocalBaseUrl(request);
         scheduler.newUploadTask(new UploadTask(shortURLRepository, tdStore, details, ip, baseUrl));
 
         try {
@@ -263,11 +272,11 @@ public class UploadManager {
                     HttpStatus.TEMPORARY_REDIRECT.value(), ip);
 
             su = shortURLRepository.save(su);
-            
-            if(su == null){
+
+            if (su == null) {
                 logger.debug("createAndSaveIfValid: SU NULL!!!");
             }
-            
+
             return su;
         } else {
             return null;
