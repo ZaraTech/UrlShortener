@@ -45,6 +45,7 @@ public class ShortURLRepositoryTests {
 				Integer.class), 1);
 	}
 
+	/*
 	@Test
 	public void thatSaveSponsor() {
 		assertNotNull(repository.save(urlSponsor()));
@@ -67,6 +68,7 @@ public class ShortURLRepositoryTests {
 				jdbc.queryForObject("select safe from SHORTURL", Boolean.class),
 				true);
 	}
+	*/
 
 	@Test
 	public void thatSaveADuplicateHashIsSafelyIgnored() {

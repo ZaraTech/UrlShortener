@@ -51,10 +51,10 @@ public class UploadTaskData extends TaskData implements Serializable {
         utds.setProgress(COMPLETED);
         utds.setCreated(su.getCreated());
         utds.setHash(su.getHash());
-        utds.setIp(su.getIP());
+        utds.setIp(su.getIp());
         utds.setMode(su.getMode());
         utds.setOwner(su.getOwner());
-        utds.setQr(su.getQR());
+        utds.setQr(su.getQr());
         utds.setUri(su.getUri());
     }
 

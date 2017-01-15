@@ -259,10 +259,16 @@ public class UploadManager {
 
             logger.info("createAndSaveIfValid: link = " + link.toString());
 
-            ShortURL su = new ShortURL(id, url, link, null, new Date(System.currentTimeMillis()), owner,
-                    HttpStatus.TEMPORARY_REDIRECT.value(), true, ip, null);
+            ShortURL su = new ShortURL(id, url, link, new Date(System.currentTimeMillis()), owner,
+                    HttpStatus.TEMPORARY_REDIRECT.value(), ip);
 
-            return shortURLRepository.save(su);
+            su = shortURLRepository.save(su);
+            
+            if(su == null){
+                logger.debug("createAndSaveIfValid: SU NULL!!!");
+            }
+            
+            return su;
         } else {
             return null;
         }
