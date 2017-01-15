@@ -162,6 +162,18 @@ public class UrlShortenerControllerWithLogs {
 
         return UploadManager.singleShort(shortURLRepository, url, request, vCardFName, vCardCheckbox, errorCorrection);
     }
+    
+    @RequestMapping(value = "/link-single-async-checks", method = RequestMethod.POST)
+    public ResponseEntity<ShortURL> singleShortenerAsyncChecks(@RequestParam("url") String url,
+            @RequestParam(value = "vCardFName", required = false) String vCardFName,
+            @RequestParam(value = "vCardCheckbox", required = false) Boolean vCardCheckbox,
+            @RequestParam(value = "errorCorrection", required = false) String errorCorrection,
+            HttpServletRequest request) {
+        logger.info("Requested new short for uri " + url);
+
+        return UploadManager.singleShortAsyncChecks(scheduler, shortURLRepository, url, request, vCardFName,
+                vCardCheckbox, errorCorrection);
+    }
 
     @RequestMapping(value = "/link-multi", method = RequestMethod.POST)
     public ResponseEntity<ShortURL[]> multiShortener(@RequestParam("file") MultipartFile csvFile,

@@ -21,6 +21,11 @@ public class UrlShortnerWebController {
     public String indexSingle(HttpServletRequest request) {
         return "single";
     }
+    
+    @RequestMapping(value = "/single-async-checks" , method = RequestMethod.GET)
+    public String indexSingleAsyncChecks(HttpServletRequest request) {
+        return "single-async-checks";
+    }
 
     @RequestMapping(value = "/multi", method = RequestMethod.GET)
     public String indexMulti(HttpServletRequest request) {

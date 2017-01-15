@@ -127,14 +127,20 @@ public class RedirectionManager {
             for(ShortURL su : list){
                 try {
                     
-                    logger.info("CHECKING URI " + su.getTarget());
+                    boolean checkNumber = false;
+                    boolean checkItSelf = false;
+                    
+                    logger.info("CHECKING NUM OF REDIRECTIONS FROM URI " + su.getTarget());
                     
                     int nor = getNumberOfRedirections(su.getTarget());
-                    if(nor >= MAX_REDIRECTIONS){
-                        su = shortURLRepository.mark(su, false);
-                    } else {
-                        su = shortURLRepository.mark(su, true);
-                    }
+                    checkNumber = (nor >= MAX_REDIRECTIONS);
+                    
+                    logger.info("CHECKING REDIRECTION TO ITSELF FROM URI " + su.getTarget());
+                    
+                    checkItSelf = isRedirectedToSelf(su.getTarget());
+                    
+                    su = shortURLRepository.mark(su, !(checkNumber || checkItSelf));
+                    
                 } catch (RedirectionException e) {
                     su = shortURLRepository.mark(su, false);
                 }

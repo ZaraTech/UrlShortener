@@ -63,6 +63,29 @@ public class UploadManager {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    public static ResponseEntity<ShortURL> singleShortAsyncChecks(Scheduler scheduler,
+            ShortURLRepository shortURLRepository, String url, HttpServletRequest request, String vCardFName,
+            Boolean vCardCheckbox, String errorCorrection) {
+
+        String ip = extractIP(request);
+
+        try {
+            String urlBase = BaseUrlManager.getLocalBaseUrl(request);
+            ShortURL su = singleShortAsyncChecks(scheduler, shortURLRepository, urlBase, url, ip, vCardFName,
+                    vCardCheckbox, errorCorrection);
+
+            if (su != null) {
+                HttpHeaders h = new HttpHeaders();
+                h.setLocation(su.getUri());
+                return new ResponseEntity<>(su, h, HttpStatus.CREATED);
+            } else {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     public static ShortURL singleShort(ShortURLRepository shortURLRepository, String urlBase, String url, String ip)
             throws NoQrException, RedirectionException {
@@ -96,6 +119,31 @@ public class UploadManager {
             } else {
                 return null;
             }
+        }
+    }
+    
+    public static ShortURL singleShortAsyncChecks(Scheduler scheduler, ShortURLRepository shortURLRepository, String urlBase, String url, String ip,
+            String vCardFName, Boolean vCardCheckbox, String errorCorrection)
+                    throws NoQrException, RedirectionException {
+
+        ShortURL su = createAndSaveIfValid(shortURLRepository, urlBase, url, UUID.randomUUID().toString(), ip);
+        
+        logger.info("Checking Uri redirects ASYNC...");
+        RedirectionManager.startAsyncCheck(scheduler, shortURLRepository, su);
+
+        if (su != null) {
+            
+            // QR Manager
+            su = QrManager.getLocalUriWithQR(su, urlBase, vCardFName, vCardCheckbox, errorCorrection);
+            
+            if (su != null) {
+                return su;
+            } else {
+                logger.info("QR Exception");
+                throw new NoQrException();
+            }
+        } else {
+            return null;
         }
     }
 
