@@ -78,7 +78,6 @@ public class SystemTests {
         assertThat(rc.read("$.hash"), is("f684a3c4"));
         assertThat(rc.read("$.uri"), is("http://localhost:" + this.port + "/f684a3c4"));
         assertThat(rc.read("$.target"), is("http://example.com/"));
-        assertThat(rc.read("$.sponsor"), is(nullValue()));
         URI uriQR = new URI(
                 "http://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=" + rc.read("$.uri") + "&choe=UTF-8&chld=L");
         assertThat(rc.read("$.qr"), is(uriQR.toString()));
@@ -215,7 +214,7 @@ public class SystemTests {
         assertThat(urlList, not(equalTo("")));
         
         // test URIs List
-        String[] urls = {"http://example.com/", "http://example2.com/", "http://github.com/", "http://unizar.es/", "http://google.com/"};
+        String[] urls = {"http://example.com/", "http://example1.org/", "http://github.com/", "http://unizar.es/", "http://google.com/"};
         for(String url : urls){
             assertTrue(urlList.indexOf(url) > 0);
         }
@@ -260,7 +259,7 @@ public class SystemTests {
         PrintWriter pw;
         try {
             pw = new PrintWriter(csv);
-            pw.println("http://example.com/, http://example2.com/,");
+            pw.println("http://example.com/, http://example1.org/,");
             pw.println("http://github.com/, http://unizar.es/, http://google.com/");
 
             pw.flush();

@@ -11,6 +11,7 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import urlshortener.zaratech.domain.UploadTaskData;
@@ -19,6 +20,7 @@ import urlshortener.zaratech.store.RedisSrv;
 @SuppressWarnings("deprecation")
 @SpringBootApplication
 @EnableAsync
+@EnableScheduling
 public class Application extends SpringBootServletInitializer {
 
     public static void main(String[] args) throws Exception {

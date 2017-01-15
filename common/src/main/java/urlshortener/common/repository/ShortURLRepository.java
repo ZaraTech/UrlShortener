@@ -12,7 +12,7 @@ public interface ShortURLRepository {
 
 	ShortURL save(ShortURL su);
 
-	ShortURL mark(ShortURL urlSafe, boolean safeness);
+	ShortURL mark(ShortURL url, boolean correction);
 
 	void update(ShortURL su);
 

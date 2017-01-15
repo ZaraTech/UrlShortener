@@ -60,10 +60,15 @@ public class UrlShortenerControllerWithLogs {
         logger.info("Requested redirection with hash " + id);
         UserAgentDetails ua=headersManager.getUA(request.getHeader("User-Agent"));
 
-        ShortURL l = shortURLRepository.findByKey(id);
-        if (l != null) {
-            createAndSaveClick(id, UploadManager.extractIP(request),ua.getBrowserName(),ua.getBrowserVersion(),ua.getOsName());
-            return createSuccessfulRedirectToResponse(l);
+        ShortURL su = shortURLRepository.findByKey(id);
+        if (su != null) {
+            
+            if(su.isCorrect()){
+                createAndSaveClick(id, UploadManager.extractIP(request),ua.getBrowserName(),ua.getBrowserVersion(),ua.getOsName());
+                return createSuccessfulRedirectToResponse(su);
+            } else {
+                return new ResponseEntity<String>(su.getLastCorrectDate().toString(), HttpStatus.NOT_FOUND);
+            }
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

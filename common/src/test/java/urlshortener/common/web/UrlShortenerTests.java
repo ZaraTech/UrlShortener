@@ -74,8 +74,7 @@ public class UrlShortenerTests {
 				.andExpect(status().isCreated())
 				.andExpect(jsonPath("$.hash", is("f684a3c4")))
 				.andExpect(jsonPath("$.uri", is("http://localhost/f684a3c4")))
-				.andExpect(jsonPath("$.target", is("http://example.com/")))
-				.andExpect(jsonPath("$.sponsor", is(nullValue())));
+				.andExpect(jsonPath("$.target", is("http://example.com/")));
 	}
 
 	@Test
@@ -89,8 +88,7 @@ public class UrlShortenerTests {
 				.andExpect(status().isCreated())
 				.andExpect(jsonPath("$.hash", is("f684a3c4")))
 				.andExpect(jsonPath("$.uri", is("http://localhost/f684a3c4")))
-				.andExpect(jsonPath("$.target", is("http://example.com/")))
-				.andExpect(jsonPath("$.sponsor", is("http://sponsor.com/")));
+				.andExpect(jsonPath("$.target", is("http://example.com/")));
 	}
 
 	@Test

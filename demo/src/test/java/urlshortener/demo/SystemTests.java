@@ -63,7 +63,6 @@ public class SystemTests {
 		assertThat(rc.read("$.hash"), is("f684a3c4"));
 		assertThat(rc.read("$.uri"), is("http://localhost:"+ this.port+"/f684a3c4"));
 		assertThat(rc.read("$.target"), is("http://example.com/"));
-		assertThat(rc.read("$.sponsor"), is(nullValue()));
 	}
 
 	@Test

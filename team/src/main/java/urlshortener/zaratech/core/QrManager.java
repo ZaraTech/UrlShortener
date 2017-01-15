@@ -34,7 +34,7 @@ public class QrManager {
 
             // API de Google
             uriQR = new URI("http://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=" + link + "&choe=UTF-8");
-            body.setQR(uriQR);
+            body.setQr(uriQR);
 
             logger.info("Uri-QR obtained " + uriQR);
 
@@ -102,7 +102,7 @@ public class QrManager {
             // API de Google
             uriQR = new URI("http://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=" + link + "&choe=UTF-8&chld="
                     + errorRadio);
-            body.setQR(uriQR);
+            body.setQr(uriQR);
 
             logger.info("Uri-QR obtained " + uriQR);
 
