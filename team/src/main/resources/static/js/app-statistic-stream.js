@@ -1,11 +1,22 @@
+var ws;
 $(document).ready(
     function() {
-        alert("Before websocket ws://" + window.location.host + "/stats-ws");
-        var ws = new WebSocket("ws://" + window.location.host + "/stats-ws");
+        ws = new WebSocket("ws://" + window.location.host + "/stats-ws");
         ws.onmessage = function(event) {
-            console.log(event.data);
-            alert("After websocket");
+            var msg=JSON.parse(event.data);
+            loadData(msg);
+            loadCalendar();
+            loadChart(msg);
         };
+        $('#form').submit(
+            function(event){
+                event.preventDefault();
+
+                var formData = $(this).serialize();
+
+                ws.send(formData);
+            }
+        );
     }
 );
 
@@ -128,7 +139,6 @@ function loadCalendar(){
 }
 
 function loadChart(msg){
-
     var infoOs = msg.jsonOs;
     var infoBrowser = msg.jsonVersion;
 
