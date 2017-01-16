@@ -122,6 +122,35 @@ public class SystemTests {
         clicks += 2;
         assertThat(clickRepository.clicksByHash(rc.read("$.hash").toString()).toString(),
                 is(String.valueOf(((int) clicks))));
+        //Testing HTML and JSON
+        entity = new TestRestTemplate().getForEntity("http://localhost:" + this.port + "/f684a3c4+", String.class);
+        assertThat(entity.getHeaders().getContentType(),
+                is(new MediaType("application", "json", Charset.forName("UTF-8"))));
+        entity = new TestRestTemplate().getForEntity("http://localhost:" + this.port + "/f684a3c4+.html", String.class);
+        assertThat(entity.getHeaders().getContentType(),
+                is(new MediaType("text", "html", Charset.forName("UTF-8"))));
+    }
+
+    @Test
+    public void testStatistics() throws Exception {
+        ResponseEntity<String> entity = postLink("http://example2.com/");
+        entity = new TestRestTemplate().getForEntity("http://localhost:" + this.port + "/87bb1139+", String.class);
+        ReadContext rc = JsonPath.parse(entity.getBody());
+        //Testing visitors
+        assertThat(rc.read("$.visitors").toString(), is("0"));
+        entity = new TestRestTemplate().getForEntity("http://localhost:" + this.port + "/87bb1139", String.class);
+        entity = new TestRestTemplate().getForEntity("http://localhost:" + this.port + "/87bb1139+", String.class);
+        rc = JsonPath.parse(entity.getBody());
+        assertThat(rc.read("$.visitors").toString(), is("1"));
+        //Testing JSON response with params
+        entity = new TestRestTemplate().getForEntity("http://localhost:" + this.port + "/statistics?desde='2017-01-01'&hasta='2017-01-10'", String.class);
+        assertThat(entity.getHeaders().getContentType(),
+                is(new MediaType("application", "json", Charset.forName("UTF-8"))));
+        //Testing HTML response
+        entity = new TestRestTemplate().getForEntity("http://localhost:" + this.port + "/stats", String.class);
+        assertThat(entity.getHeaders().getContentType(),
+                is(new MediaType("text", "html", Charset.forName("UTF-8"))));
+
     }
 
     /*
