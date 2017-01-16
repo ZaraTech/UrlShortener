@@ -31,6 +31,7 @@ import urlshortener.common.domain.Click;
 import urlshortener.common.domain.ShortURL;
 import urlshortener.common.repository.ClickRepository;
 import urlshortener.common.repository.ShortURLRepository;
+import urlshortener.zaratech.core.AppMailSender;
 import urlshortener.zaratech.core.HeadersManager;
 import urlshortener.zaratech.core.QrManager;
 import urlshortener.zaratech.core.UploadManager;
@@ -62,6 +63,9 @@ public class UrlShortenerControllerWithLogs {
 
     @Autowired
     private UploadTaskDataStore tdStore;
+
+    @Autowired
+    private AppMailSender mailSender;
 
     @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}", method = RequestMethod.GET)
     public ResponseEntity<?> redirectTo(@PathVariable String id, HttpServletRequest request) {
@@ -157,12 +161,38 @@ public class UrlShortenerControllerWithLogs {
             @RequestParam(value = "vCardFName", required = false) String vCardFName,
             @RequestParam(value = "vCardCheckbox", required = false) Boolean vCardCheckbox,
             @RequestParam(value = "errorCorrection", required = false) String errorCorrection,
-            HttpServletRequest request) {
+            @RequestParam(value = "mailCheckbox", required = false) Boolean mailCheckbox,
+            @RequestParam(value = "email", required = false) String email, HttpServletRequest request) {
         logger.info("Requested new short for uri " + url);
 
-        return UploadManager.singleShort(shortURLRepository, url, request, vCardFName, vCardCheckbox, errorCorrection);
+        ResponseEntity<ShortURL> response = UploadManager.singleShort(shortURLRepository, url, request, vCardFName,
+                vCardCheckbox, errorCorrection);
+
+        if (response.getStatusCode().equals(HttpStatus.CREATED)) {
+
+            if (mailCheckbox != null && mailCheckbox == true && email != null && !email.isEmpty()) {
+
+                logger.info("Preparing to send email...");
+
+                VCard vcard = null;
+                String urlBase = BaseUrlManager.getLocalBaseUrl(request);
+
+                if (vCardCheckbox != null && vCardCheckbox == true && vCardFName != null && !vCardFName.isEmpty()) {
+
+                    vcard = new VCard(vCardFName, response.getBody().getUri());
+                }
+                if (errorCorrection == null || errorCorrection.isEmpty()) {
+                    errorCorrection = "L"; // default
+                }
+
+                // send mail with QR code
+                mailSender.sendMail(email, QrManager.createQRImage(urlBase, errorCorrection, vcard));
+            }
+        }
+
+        return response;
     }
-    
+
     @RequestMapping(value = "/link-single-async-checks", method = RequestMethod.POST)
     public ResponseEntity<ShortURL> singleShortenerAsyncChecks(@RequestParam("url") String url,
             @RequestParam(value = "vCardFName", required = false) String vCardFName,
@@ -264,9 +294,9 @@ public class UrlShortenerControllerWithLogs {
             String urlBase = BaseUrlManager.getLocalBaseUrl(request);
 
             if (vCardFName != null && !vCardFName.isEmpty()) {
-                vcard = new VCard(vCardFName, new URI(urlBase));
+                vcard = new VCard(vCardFName, new URI(urlBase + "/" + id));
             }
-            
+
             BufferedImage image = QrManager.createQRImage(urlBase, errorCorrection, vcard);
 
             // convert image to byte array
