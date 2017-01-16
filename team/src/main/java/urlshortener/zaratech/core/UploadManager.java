@@ -98,28 +98,35 @@ public class UploadManager {
             String vCardFName, Boolean vCardCheckbox, String errorCorrection)
                     throws NoQrException, RedirectionException {
 
-        if (RedirectionManager.isRedirectedToSelf(url)) {
-            logger.info("Uri redirects to itself, short url can't be created");
-            return null;
-        } else {
-
-            logger.info("Uri doesn't redirects to itself. Creating short url ...");
-
-            ShortURL su = createAndSaveIfValid(shortURLRepository, urlBase, url, UUID.randomUUID().toString(), ip);
-
-            if (su != null) {
-                
-                // QR Manager
-                su = QrManager.getLocalUriWithQR(su, urlBase, vCardFName, vCardCheckbox, errorCorrection);   
-                
-                if (su != null) {
-                    return su;
-                } else {
-                    logger.info("QR Exception");
-                    throw new NoQrException();
-                }
-            } else {
+        // TODO check url, TRIM ..
+        url = url.trim();
+        if (url.isEmpty()) {
+                logger.info("The URI is not valid.");
                 return null;
+        } else {
+            if (RedirectionManager.isRedirectedToSelf(url)) {
+                logger.info("Uri redirects to itself, short url can't be created");
+                return null;
+            } else {
+
+                logger.info("Uri doesn't redirects to itself. Creating short url ...");
+
+                ShortURL su = createAndSaveIfValid(shortURLRepository, urlBase, url, UUID.randomUUID().toString(), ip);
+
+                if (su != null) {
+
+                    // QR Manager
+                    su = QrManager.getLocalUriWithQR(su, urlBase, vCardFName, vCardCheckbox, errorCorrection);
+
+                    if (su != null) {
+                        return su;
+                    } else {
+                        logger.info("QR Exception");
+                        throw new NoQrException();
+                    }
+                } else {
+                    return null;
+                }
             }
         }
     }
@@ -152,19 +159,29 @@ public class UploadManager {
     public static ResponseEntity<ShortURL[]> multiShortSync(ShortURLRepository shortURLRepository,
             MultipartFile csvFile, HttpServletRequest request, String vCardFName, Boolean vCardCheckbox,
             String errorCorrection) {
-
-        LinkedList<String> urls = processFile(csvFile);
-        String ip = extractIP(request);
-
-        ShortURL[] su = multiShort(shortURLRepository, urls, ip, vCardFName, vCardCheckbox, errorCorrection, request);
-
-        if (su != null) {
-            HttpHeaders h = new HttpHeaders();
-            return new ResponseEntity<>(su, h, HttpStatus.CREATED);
-
-        } else {
+        
+        String csv = csvFile.getOriginalFilename().trim();
+        
+        if (csv.isEmpty()) {
+            logger.info("The CSV is not valid.");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            
+        } else {
+            LinkedList<String> urls = processFile(csvFile);
+            String ip = extractIP(request);
+
+            ShortURL[] su = multiShort(shortURLRepository, urls, ip, vCardFName, vCardCheckbox, errorCorrection,
+                    request);
+
+            if (su != null) {
+                HttpHeaders h = new HttpHeaders();
+                return new ResponseEntity<>(su, h, HttpStatus.CREATED);
+
+            } else {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
         }
+        
 
     }
 
@@ -209,10 +226,18 @@ public class UploadManager {
     public static ResponseEntity<RedirectionDetails> multiShortAsync(Scheduler scheduler,
             ShortURLRepository shortURLRepository, UploadTaskDataStore tdStore, MultipartFile csvFile,
             HttpServletRequest request) {
+        
+        String csv = csvFile.getOriginalFilename().trim();
+        
+        if (csv.isEmpty()) {
+            logger.info("The CSV is not valid.");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
-        LinkedList<String> urls = processFile(csvFile);
+        } else {
+            LinkedList<String> urls = processFile(csvFile);
 
-        return multiShortAsync(scheduler, shortURLRepository, tdStore, urls, request);
+            return multiShortAsync(scheduler, shortURLRepository, tdStore, urls, request);
+        }
     }
 
     public static ResponseEntity<RedirectionDetails> multiShortAsync(Scheduler scheduler,
@@ -345,7 +370,14 @@ public class UploadManager {
     }
 
     private static boolean isValid(String url) {
-        UrlValidator urlValidator = new UrlValidator(new String[] { "http", "https" });
-        return urlValidator.isValid(url);
+        url = url.trim();
+        
+        if (url.isEmpty()) {
+                logger.info("The URI is not valid.");
+                return false;
+        } else {
+            UrlValidator urlValidator = new UrlValidator(new String[] { "http", "https" });
+            return urlValidator.isValid(url);
+        }
     }
 }

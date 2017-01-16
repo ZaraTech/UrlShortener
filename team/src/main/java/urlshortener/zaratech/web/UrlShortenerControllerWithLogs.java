@@ -236,15 +236,24 @@ public class UrlShortenerControllerWithLogs {
             @RequestParam(value = "sponsor", required = false) String sponsor, HttpServletRequest request) {
 
         logger.info("Requested new ASYNC multi-short for FORM DATA");
+        
+        String list = urlList.trim();
+        
+        if (list.isEmpty()){
+            
+            logger.info("The input is not valid.");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            
+        } else {
+            String[] urls = urlList.split("\r?\n");
+            List<String> urlsList = new LinkedList<String>();
 
-        String[] urls = urlList.split("\r?\n");
-        List<String> urlsList = new LinkedList<String>();
+            for (String url : urls) {
+                urlsList.add(url);
+            }
 
-        for (String url : urls) {
-            urlsList.add(url);
+            return UploadManager.multiShortAsync(scheduler, shortURLRepository, tdStore, urlsList, request);
         }
-
-        return UploadManager.multiShortAsync(scheduler, shortURLRepository, tdStore, urlsList, request);
     }
 
     @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}+", produces = "application/json", method = RequestMethod.GET)

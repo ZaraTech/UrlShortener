@@ -89,6 +89,7 @@ public class SystemTests {
         assertThat(entity.getStatusCode(), is(HttpStatus.TEMPORARY_REDIRECT));
         assertThat(entity.getHeaders().getLocation(), not(new URI("http://example.com")));
         
+        // TODO post y ver que una si y otra no se añade
 //        ResponseEntity<String> entity = new TestRestTemplate()
 //                .getForEntity("http://localhost:" + this.port + "/redirect", String.class);
 //        assertThat(entity.getStatusCode(), is(HttpStatus.TEMPORARY_REDIRECT));
