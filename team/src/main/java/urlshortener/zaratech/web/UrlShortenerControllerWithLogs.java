@@ -83,7 +83,8 @@ public class UrlShortenerControllerWithLogs {
                         ua.getOsName());
                 return createSuccessfulRedirectToResponse(su);
             } else {
-                return new ResponseEntity<String>(su.getLastCorrectDate().toString(), HttpStatus.NOT_FOUND);
+                String notCorrect = "This URL is NOT available since " + su.getLastCorrectDate().toString();
+                return new ResponseEntity<String>(notCorrect, HttpStatus.NOT_FOUND);
             }
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
