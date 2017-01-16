@@ -94,7 +94,7 @@ public class RedirectionManager {
     public static void checkNorFromUri(ShortURLRepository shortURLRepository, ShortURL su){
         try {
             
-            logger.info("CHECKING URI " + su.getTarget());
+            logger.info("--- Checking num. of redirections from URI " + su.getTarget());
             
             int nor = getNumberOfRedirections(su.getTarget());
             if(nor >= MAX_REDIRECTIONS){
@@ -130,12 +130,12 @@ public class RedirectionManager {
                     boolean checkNumber = false;
                     boolean checkItSelf = false;
                     
-                    logger.info("CHECKING NUM OF REDIRECTIONS FROM URI " + su.getTarget());
+                    logger.info("--- Checking num. of redirections from URI " + su.getTarget());
                     
                     int nor = getNumberOfRedirections(su.getTarget());
                     checkNumber = (nor >= MAX_REDIRECTIONS);
                     
-                    logger.info("CHECKING REDIRECTION TO ITSELF FROM URI " + su.getTarget());
+                    logger.info("--- Checking redirection to itself from URI " + su.getTarget());
                     
                     checkItSelf = isRedirectedToSelf(su.getTarget());
                     

@@ -157,7 +157,7 @@ public class ClickRepositoryImpl implements ClickRepository {
 	@Override
 	public List<Click> listAll() {
 		try {
-			log.info("Selected all clicks");
+			//log.info("Selected all clicks");
 			return jdbc.query("SELECT * FROM click", rowMapper);
 		} catch (Exception e) {
 			return null;
@@ -176,7 +176,7 @@ public class ClickRepositoryImpl implements ClickRepository {
 					filter.add(click);
 				}
 			}
-			log.info("Selected since clicks");
+			//log.info("Selected since clicks");
 			return filter;
 		} catch (Exception e) {
 			return null;
@@ -195,7 +195,7 @@ public class ClickRepositoryImpl implements ClickRepository {
 							filter.add(click);
 				}
 			}
-			log.info("Selected for clicks");
+			//log.info("Selected for clicks");
 			return filter;
 		} catch (Exception e) {
 			return null;
@@ -214,7 +214,7 @@ public class ClickRepositoryImpl implements ClickRepository {
 					filter.add(click);
 				}
 			}
-			log.debug("Selected since and for clicks");
+			//log.debug("Selected since and for clicks");
 			return filter;
 		} catch (Exception e) {
 			return null;
