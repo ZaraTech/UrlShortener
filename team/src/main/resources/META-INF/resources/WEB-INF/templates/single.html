@@ -12,6 +12,8 @@
 </script>
 <script type="text/javascript" src="js/app-check-vcard-checkbox.js">
 </script>
+<script type="text/javascript" src="js/app-check-mail-checkbox.js">
+</script>
 </head>
 <body>
     <div class="container-full">
@@ -76,14 +78,29 @@
                             
                         </div>
                     </div>
-                    <!-- VCard INFORMATION END -->
                     <p></p>
+                    <!-- VCard INFORMATION END -->
+                    
                     <div class="input-group input-group-lg col-sm-offset-4 col-sm-4">
                         <input type="text" class="center-block form-control input-lg"
                             title="Enter a URL" placeholder="Enter a URL" name="url">
                         <span class="input-group-btn"><button
                                 class="btn btn-lg btn-primary" type="submit">Short me!</button></span>
                     </div>
+                    <p></p>
+                    <!-- Email Address -->
+                    <div class="input-group input-group-lg col-sm-offset-4 col-sm-4">
+                        <input type="checkbox" id="mailCheckbox" name="mailCheckbox"/>
+                        <label for="mailCheckbox">Send QR code to your email</label>
+                        <div id="mailContainer">
+                            <div class="input-group input-group-lg col-sm-offset-4 col-sm-4">
+                                <input type="text" class="center-block form-control input-lg"
+                                    title="Enter an email" placeholder="Enter an email" name="email">
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Email Address END -->
                 </form>                
             </div>
         </div>
