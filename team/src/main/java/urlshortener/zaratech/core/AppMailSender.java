@@ -28,79 +28,79 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class AppMailSender {
 
-	private static final Logger logger = LoggerFactory.getLogger(AppMailSender.class);
-	
-	@Value("${gmail.user}")
-	private String from; //= "zaratech.bus@gmail.com";
+    private static final Logger logger = LoggerFactory.getLogger(AppMailSender.class);
 
-	@Value("${gmail.pass}")
-	private String pass; // = "ZaratechBus";
-	
-	public void sendMail(String to, BufferedImage image) {
+    @Value("${gmail.user}")
+    private String from; // = "zaratech.bus@gmail.com";
 
-		String text = "There is your QR code.";
-		String subject = "QR code";
+    @Value("${gmail.pass}")
+    private String pass; // = "ZaratechBus";
 
-		try {
-			
-			// set properties
-			Properties prop = System.getProperties();
-			prop.put("mail.transport.protocol", "smtp");
-			prop.put("mail.smtp.auth", "true");
-			prop.put("mail.smtp.starttls.enable", "true");
-			prop.put("mail.smtp.ssl.trust", "smtp.gmail.com");
-			prop.put("mail.smtp.host", "smtp.gmail.com");
-			prop.put("mail.smtp.port", "587");
+    public void sendMail(String to, BufferedImage image) {
 
-			Session mailSession = Session.getInstance(prop);
-			Transport transport = mailSession.getTransport();
+        String text = "There is your QR code.";
+        String subject = "QR code";
 
-			// build message
-			MimeMessage message = new MimeMessage(mailSession);
-			message.setSubject(subject);
-			message.setFrom(new InternetAddress(from));
-			message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+        try {
 
-			MimeMultipart content = new MimeMultipart();
-			BodyPart bodyPart = new MimeBodyPart();
-			MimeBodyPart imagePart = new MimeBodyPart();
-			
-			// set body
-			bodyPart.setContent(text, "text/html");
-			content.addBodyPart(bodyPart);
-			
-			// get image handler
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ImageIO.write(image, "png", baos);
-			baos.flush();
-			byte[] imageArray = baos.toByteArray();
-			DataSource ds = new ByteArrayDataSource(imageArray, "image/png");
-			DataHandler handler = new DataHandler(ds);
-			
-			// set image
-			imagePart.setDataHandler(handler);
-			imagePart.setFileName("QR.png");
-			content.addBodyPart(imagePart);
+            // set properties
+            Properties prop = System.getProperties();
+            prop.put("mail.transport.protocol", "smtp");
+            prop.put("mail.smtp.auth", "true");
+            prop.put("mail.smtp.starttls.enable", "true");
+            prop.put("mail.smtp.ssl.trust", "smtp.gmail.com");
+            prop.put("mail.smtp.host", "smtp.gmail.com");
+            prop.put("mail.smtp.port", "587");
 
-			// add content to message
-			message.setContent(content);
+            Session mailSession = Session.getInstance(prop);
+            Transport transport = mailSession.getTransport();
 
-			// send email
-			transport.connect(from, pass);
-			transport.sendMessage(message, message.getRecipients(Message.RecipientType.TO));
-			transport.close();
-			
-			logger.info("Mail sent."); 
-			
-		} catch (AddressException e) {
+            // build message
+            MimeMessage message = new MimeMessage(mailSession);
+            message.setSubject(subject);
+            message.setFrom(new InternetAddress(from));
+            message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
 
-			logger.info("Mail can't be sended."); 
-		} catch (MessagingException e) {
+            MimeMultipart content = new MimeMultipart();
+            BodyPart bodyPart = new MimeBodyPart();
+            MimeBodyPart imagePart = new MimeBodyPart();
 
-			logger.info("Error sendig mail. Check your sender email inbox"); 
-		} catch (IOException e) {
+            // set body
+            bodyPart.setContent(text, "text/html");
+            content.addBodyPart(bodyPart);
 
-			logger.info("Mail can't be sended."); 
-		}
-	}
+            // get image handler
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", baos);
+            baos.flush();
+            byte[] imageArray = baos.toByteArray();
+            DataSource ds = new ByteArrayDataSource(imageArray, "image/png");
+            DataHandler handler = new DataHandler(ds);
+
+            // set image
+            imagePart.setDataHandler(handler);
+            imagePart.setFileName("QR.png");
+            content.addBodyPart(imagePart);
+
+            // add content to message
+            message.setContent(content);
+
+            // send email
+            transport.connect(from, pass);
+            transport.sendMessage(message, message.getRecipients(Message.RecipientType.TO));
+            transport.close();
+
+            logger.info("Mail sent.");
+
+        } catch (AddressException e) {
+
+            logger.info("Mail can't be sended.");
+        } catch (MessagingException e) {
+
+            logger.info("Error sendig mail. Check your sender email inbox");
+        } catch (IOException e) {
+
+            logger.info("Mail can't be sended.");
+        }
+    }
 }
