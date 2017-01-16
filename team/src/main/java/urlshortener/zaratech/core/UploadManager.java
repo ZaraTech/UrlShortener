@@ -108,7 +108,7 @@ public class UploadManager {
             if (su != null) {
                 
                 // QR Manager
-                su = QrManager.getLocalUriWithQR(su, urlBase, vCardFName, vCardCheckbox, errorCorrection);
+                su = QrManager.getLocalUriWithQR(su, urlBase, vCardFName, vCardCheckbox, errorCorrection);   
                 
                 if (su != null) {
                     return su;
