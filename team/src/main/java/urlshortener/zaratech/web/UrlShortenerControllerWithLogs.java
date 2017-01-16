@@ -67,7 +67,7 @@ public class UrlShortenerControllerWithLogs {
     @Autowired
     private AppMailSender mailSender;
 
-    @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi|stats-ws).*}", method = RequestMethod.GET)
     public ResponseEntity<?> redirectTo(@PathVariable String id, HttpServletRequest request) {
         logger.info("Requested redirection with hash " + id);
         UserAgentDetails ua = headersManager.getUA(request.getHeader("User-Agent"));

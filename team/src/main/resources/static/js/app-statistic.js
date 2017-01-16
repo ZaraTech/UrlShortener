@@ -84,7 +84,7 @@ function getStatisticsFiltered(data) {
 }
 
 function loadData(msg) {
-
+    console.log('Mostrando estadisticas ');
     var data="";
     data+=
         "<div class='text-left'><table class='table table-hover table-bordered' id='data'>"

@@ -171,7 +171,7 @@ public class ClickRepositoryImpl implements ClickRepository {
 			Click click;
 			List<Click> filter=new ArrayList<Click>();
 			for(int i=0;i<=aux.size()-1;i++){
-				if(aux.get(i).getCreated().toString().compareTo(desde)>0){
+				if(aux.get(i).getCreated().toString().compareTo(desde)>=0){
 					click=aux.get(i);
 					filter.add(click);
 				}
@@ -190,7 +190,7 @@ public class ClickRepositoryImpl implements ClickRepository {
 			Click click;
 			List<Click> filter=new ArrayList<Click>();
 			for(int i=0;i<=aux.size()-1;i++){
-				if(aux.get(i).getCreated().toString().compareTo(hasta)<0){
+				if(aux.get(i).getCreated().toString().compareTo(hasta)<=0){
 					click=aux.get(i);
 							filter.add(click);
 				}
@@ -209,7 +209,7 @@ public class ClickRepositoryImpl implements ClickRepository {
 			Click click;
 			List<Click> filter=new ArrayList<Click>();
 			for(int i=0;i<=aux.size()-1;i++){
-				if(aux.get(i).getCreated().toString().compareTo(hasta)<0 && aux.get(i).getCreated().toString().compareTo(desde)>0){
+				if(aux.get(i).getCreated().toString().compareTo(hasta)<=0 && aux.get(i).getCreated().toString().compareTo(desde)>=0){
 					click=aux.get(i);
 					filter.add(click);
 				}

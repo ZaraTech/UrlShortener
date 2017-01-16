@@ -31,15 +31,17 @@ public class StatisticHandler extends TextWebSocketHandler {
 
     @PostConstruct
     private void initialize() {
+        logger.info("Initialize websocket");
         activeSessions = new ConcurrentHashMap<>();
     }
 
 
     private void broadcastSessionCount() {
+        logger.info("Broadcast websocket");
         Statistics stats=new Statistics();
         try {
             for (WebSocketSession s : activeSessions.values()) {
-                s.sendMessage(new TextMessage(mapper.writeValueAsString(stats)));
+                s.sendMessage(new TextMessage(mapper.writeValueAsString("RECIBE")));
             }
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
@@ -48,12 +50,14 @@ public class StatisticHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
+        logger.info("After websocket");
         activeSessions.put(session.getId(), session);
         broadcastSessionCount();
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+        logger.info("Closed websocket");
         activeSessions.remove(session.getId());
         broadcastSessionCount();
     }
