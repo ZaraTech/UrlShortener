@@ -331,25 +331,28 @@ public class UrlShortenerControllerWithLogs {
         }
     }
     
-    // ENDPOINT DE TEST SELF REDIRECTION
+    // ENDPOINT - TEST SELF REDIRECTION
     @RequestMapping(value = "/redirect", method = RequestMethod.GET)
     public ResponseEntity<UploadTaskData> selfRedirectEndPoint(HttpServletRequest request) {
 
-        if (numRedirec < 5){
-            logger.info("Self redirection endpoint. Always return 307..");
-            numRedirec++;
+        if (request.getLocalAddr().equals("127.0.0.1") || request.getLocalAddr().equals("::1")){
             
-            HttpHeaders h = new HttpHeaders();
-            h.setLocation(URI.create(BaseUrlManager.getLocalBaseUrl(request) + "/redirect"));
-            return new ResponseEntity<>(h, HttpStatus.TEMPORARY_REDIRECT);
-        } else {
-            logger.info("5 redirections reached.");
+            if (numRedirec < 5){
+                logger.info("Self redirection endpoint. Always return 307..");
+                numRedirec++;
+                
+                HttpHeaders h = new HttpHeaders();
+                h.setLocation(URI.create(BaseUrlManager.getLocalBaseUrl(request) + "/redirect"));
+                return new ResponseEntity<>(h, HttpStatus.TEMPORARY_REDIRECT);
+            } else {
+                logger.info("5 redirections reached.");
 
-            HttpHeaders h = new HttpHeaders();
-            h.setLocation(URI.create(BaseUrlManager.getLocalBaseUrl(request)));
-            return new ResponseEntity<>(h, HttpStatus.OK);
+                HttpHeaders h = new HttpHeaders();
+                h.setLocation(URI.create(BaseUrlManager.getLocalBaseUrl(request)));
+                return new ResponseEntity<>(h, HttpStatus.OK);
+            }
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        
-        
     }
 }

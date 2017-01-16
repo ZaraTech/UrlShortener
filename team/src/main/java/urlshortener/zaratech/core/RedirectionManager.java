@@ -5,6 +5,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -48,17 +49,27 @@ public class RedirectionManager {
             try {
                 logger.info("Checking redirection...");
                 String location;
+                Header[] headerLocations;
 
                 // HTTP GET
                 HttpResponse response = client.execute(new HttpGet(uri));
-                location = response.getHeaders("location")[0].getValue();
+                headerLocations = response.getHeaders("location");
                 
-                logger.info("Response header location: " + location);
-                if (location.equalsIgnoreCase(url)){
+                if (headerLocations.length > 0){
                     
-                    isRedirected = true;
-                } else {
-                    isRedirected = false;
+                    location = headerLocations[0].getValue();
+                    if(location != null && !location.isEmpty()){
+                        
+                        logger.info("Response header location: " + location);
+                        if (location.equalsIgnoreCase(url)){
+                            
+                            isRedirected = true;
+                        } else {
+                            isRedirected = false;
+                        }
+                    } else {
+                        isRedirected = false;
+                    }
                 }
                 
                 logger.info("Redirection check end.");

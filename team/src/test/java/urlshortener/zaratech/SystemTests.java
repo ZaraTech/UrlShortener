@@ -74,26 +74,23 @@ public class SystemTests {
         assertThat(rc.read("$.hash"), is("f684a3c4"));
         assertThat(rc.read("$.uri"), is("http://localhost:" + this.port + "/f684a3c4"));
         assertThat(rc.read("$.target"), is("http://example.com/"));
+        assertThat(rc.read("$.qr"), is("http://localhost:" + this.port + "/qr/f684a3c4?errorCorrection=L"));
         entity = new TestRestTemplate()
                 .getForEntity("http://localhost:" + this.port + "/qr/f684a3c4?errorCorrection=L", String.class);
         assertThat(entity.getStatusCode(), is(HttpStatus.OK));
-
-        // TODO comprobar que una peticion HTTP GET a la uri original no es una
-        // redireccion a la misma uri
     }
 
     @Test
     public void testSelfRedirection() throws Exception {
-        ResponseEntity<String> entity = new TestRestTemplate()
-              .getForEntity("http://example.com", String.class);
-        assertThat(entity.getStatusCode(), is(HttpStatus.TEMPORARY_REDIRECT));
-        assertThat(entity.getHeaders().getLocation(), not(new URI("http://example.com")));
         
-        // TODO post y ver que una si y otra no se añade
-//        ResponseEntity<String> entity = new TestRestTemplate()
-//                .getForEntity("http://localhost:" + this.port + "/redirect", String.class);
-//        assertThat(entity.getStatusCode(), is(HttpStatus.TEMPORARY_REDIRECT));
-//        assertThat(entity.getHeaders().getLocation(), is(new URI("http://localhost:" + this.port + "/redirect")));
+        // not redirected uri -> it is created
+        ResponseEntity<String> entity = postLink("http://example.com/");
+        assertThat(entity.getStatusCode(), not(HttpStatus.TEMPORARY_REDIRECT));
+        assertThat(entity.getStatusCode(), is(HttpStatus.CREATED));
+        
+        // uri that redirects to itself -> it is not created
+        entity = postLink("http://localhost:" + this.port + "/redirect");
+        assertThat(entity.getStatusCode(), is(HttpStatus.BAD_REQUEST));
     }
     @Test
     public void testRedirection() throws Exception {
