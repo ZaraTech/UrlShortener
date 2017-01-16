@@ -98,7 +98,6 @@ public class UploadManager {
             String vCardFName, Boolean vCardCheckbox, String errorCorrection)
                     throws NoQrException, RedirectionException {
 
-        // TODO check url, TRIM ..
         url = url.trim();
         if (url.isEmpty()) {
                 logger.info("The URI is not valid.");
