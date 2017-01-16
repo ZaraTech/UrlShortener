@@ -24,6 +24,6 @@ public class StatisticsStream implements WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         logger.info("Registrando Websocket StatisticStream");
-        registry.addHandler(statisticHandler, "/stats-stream").setAllowedOrigins("*");
+        registry.addHandler(statisticHandler, "/stats-ws").setAllowedOrigins("*");
     }
 }

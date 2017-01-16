@@ -1,16 +1,11 @@
 $(document).ready(
     function() {
-
-        getStatistics();
-        $('#form').submit(
-            function(event){
-                event.preventDefault();
-
-                var formData = $(this).serialize();
-
-                getStatisticsFiltered(formData);
-            }
-        );
+        alert("Before websocket ws://" + window.location.host + "/stats-ws");
+        var ws = new WebSocket("ws://" + window.location.host + "/stats-ws");
+        ws.onmessage = function(event) {
+            console.log(event.data);
+            alert("After websocket");
+        };
     }
 );
 
