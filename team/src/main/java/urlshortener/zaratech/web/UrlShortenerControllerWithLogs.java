@@ -255,9 +255,11 @@ public class UrlShortenerControllerWithLogs {
 
         UploadTaskData details = tdStore.find(id);
 
-        // TODO ERROR si no esta la task en cache
-
-        return new ResponseEntity<UploadTaskData>(details, HttpStatus.OK);
+        if(details != null){
+            return new ResponseEntity<UploadTaskData>(details, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<UploadTaskData>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @ResponseBody
