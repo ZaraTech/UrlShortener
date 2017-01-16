@@ -47,275 +47,275 @@ import urlshortener.zaratech.store.UploadTaskDataStore;
 @RestController
 public class UrlShortenerControllerWithLogs {
 
-	private static final Logger logger = LoggerFactory.getLogger(UrlShortenerControllerWithLogs.class);
-
-	@Autowired
-	protected ShortURLRepository shortURLRepository;
-
-	@Autowired
-	protected ClickRepository clickRepository;
-
-	@Autowired
-	private HeadersManager headersManager;
-
-	@Autowired
-	private Scheduler scheduler;
-
-	@Autowired
-	private UploadTaskDataStore tdStore;
-
-	@Autowired
-	private AppMailSender mailSender;
-
-	@RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}", method = RequestMethod.GET)
-	public ResponseEntity<?> redirectTo(@PathVariable String id, HttpServletRequest request) {
-		logger.info("Requested redirection with hash " + id);
-		UserAgentDetails ua = headersManager.getUA(request.getHeader("User-Agent"));
-
-		ShortURL su = shortURLRepository.findByKey(id);
-		if (su != null) {
-
-			if (su.isCorrect()) {
-				createAndSaveClick(id, UploadManager.extractIP(request), ua.getBrowserName(), ua.getBrowserVersion(),
-						ua.getOsName());
-				return createSuccessfulRedirectToResponse(su);
-			} else {
-				return new ResponseEntity<String>(su.getLastCorrectDate().toString(), HttpStatus.NOT_FOUND);
-			}
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-	}
-
-	@RequestMapping(value = "/statistics", produces = "application/json", method = RequestMethod.GET)
-	public ResponseEntity<Statistics> showStatistics(@RequestParam(value = "desde", required = false) String desde,
-			@RequestParam(value = "hasta", required = false) String hasta, HttpServletRequest request) {
-		logger.info("Requested filter with params " + desde + "  " + hasta);
-
-		List<Click> clicks;
-
-		if (desde == null && hasta == null || desde.equals("") && hasta.equals("")) {
-			logger.info("Requested filter all " + desde + "  " + hasta);
-			clicks = clickRepository.listAll();
-
-		} else if (hasta.equals("") && !desde.equals("")) {
-			logger.info("Requested filter only since " + desde + "  " + hasta);
-			clicks = clickRepository.listSince(desde);
-
-		} else if (desde.equals("") && !hasta.equals("")) {
-			logger.info("Requested filter only for " + desde + "  " + hasta);
-			clicks = clickRepository.listFor(hasta);
-
-		} else {
-			logger.info("Requested filter for and since " + desde + "  " + hasta);
-			clicks = clickRepository.listSinceAndFor(desde, hasta);
-		}
-
-		if (clicks != null) {
-			Statistics statistics = headersManager.getStatistics(clicks);
-			return new ResponseEntity<Statistics>(statistics, HttpStatus.OK);
-
-		} else {
-			logger.info("CLICKS NULL!!!!");
-			return new ResponseEntity<Statistics>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	@RequestMapping(value = "/statistics-stream", produces = "application/json", method = RequestMethod.GET)
-	public ResponseEntity<Statistics> showStatisticsStream(
-			@RequestParam(value = "desde", required = false) String desde,
-			@RequestParam(value = "hasta", required = false) String hasta, HttpServletRequest request) {
-		logger.info("Requested filter with params " + desde + "  " + hasta);
-		Statistics statistics = new Statistics();
-		if (desde == null && hasta == null || desde.equals("") && hasta.equals("")) {
-			logger.info("Requested filter all " + desde + "  " + hasta);
-			statistics = headersManager.getStatistics(clickRepository.listAll());
-		} else if (hasta.equals("") && !desde.equals("")) {
-			logger.info("Requested filter only since " + desde + "  " + hasta);
-			statistics = headersManager.getStatistics(clickRepository.listSince(desde));
-		} else if (desde.equals("") && !hasta.equals("")) {
-			logger.info("Requested filter only for " + desde + "  " + hasta);
-			statistics = headersManager.getStatistics(clickRepository.listFor(hasta));
-		} else {
-			logger.info("Requested filter for and since " + desde + "  " + hasta);
-			statistics = headersManager.getStatistics(clickRepository.listSinceAndFor(desde, hasta));
-		}
-		return new ResponseEntity<Statistics>(statistics, HttpStatus.OK);
-	}
-
-	private void createAndSaveClick(String hash, String ip, String browser, String version, String os) {
-		Click cl = new Click(null, hash, new Date(System.currentTimeMillis()), null, browser, version, os, null, ip,
-				null);
-		cl = clickRepository.save(cl);
-		logger.info(cl != null ? "[" + hash + "] saved with id [" + cl.getId() + "]" : "[" + hash + "] was not saved");
-	}
+    private static final Logger logger = LoggerFactory.getLogger(UrlShortenerControllerWithLogs.class);
+
+    @Autowired
+    protected ShortURLRepository shortURLRepository;
+
+    @Autowired
+    protected ClickRepository clickRepository;
+
+    @Autowired
+    private HeadersManager headersManager;
+
+    @Autowired
+    private Scheduler scheduler;
+
+    @Autowired
+    private UploadTaskDataStore tdStore;
+
+    @Autowired
+    private AppMailSender mailSender;
+
+    @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}", method = RequestMethod.GET)
+    public ResponseEntity<?> redirectTo(@PathVariable String id, HttpServletRequest request) {
+        logger.info("Requested redirection with hash " + id);
+        UserAgentDetails ua = headersManager.getUA(request.getHeader("User-Agent"));
+
+        ShortURL su = shortURLRepository.findByKey(id);
+        if (su != null) {
+
+            if (su.isCorrect()) {
+                createAndSaveClick(id, UploadManager.extractIP(request), ua.getBrowserName(), ua.getBrowserVersion(),
+                        ua.getOsName());
+                return createSuccessfulRedirectToResponse(su);
+            } else {
+                return new ResponseEntity<String>(su.getLastCorrectDate().toString(), HttpStatus.NOT_FOUND);
+            }
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @RequestMapping(value = "/statistics", produces = "application/json", method = RequestMethod.GET)
+    public ResponseEntity<Statistics> showStatistics(@RequestParam(value = "desde", required = false) String desde,
+            @RequestParam(value = "hasta", required = false) String hasta, HttpServletRequest request) {
+        logger.info("Requested filter with params " + desde + "  " + hasta);
+
+        List<Click> clicks;
+
+        if (desde == null && hasta == null || desde.equals("") && hasta.equals("")) {
+            logger.info("Requested filter all " + desde + "  " + hasta);
+            clicks = clickRepository.listAll();
+
+        } else if (hasta.equals("") && !desde.equals("")) {
+            logger.info("Requested filter only since " + desde + "  " + hasta);
+            clicks = clickRepository.listSince(desde);
+
+        } else if (desde.equals("") && !hasta.equals("")) {
+            logger.info("Requested filter only for " + desde + "  " + hasta);
+            clicks = clickRepository.listFor(hasta);
+
+        } else {
+            logger.info("Requested filter for and since " + desde + "  " + hasta);
+            clicks = clickRepository.listSinceAndFor(desde, hasta);
+        }
+
+        if (clicks != null) {
+            Statistics statistics = headersManager.getStatistics(clicks);
+            return new ResponseEntity<Statistics>(statistics, HttpStatus.OK);
+
+        } else {
+            logger.info("CLICKS NULL!!!!");
+            return new ResponseEntity<Statistics>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value = "/statistics-stream", produces = "application/json", method = RequestMethod.GET)
+    public ResponseEntity<Statistics> showStatisticsStream(
+            @RequestParam(value = "desde", required = false) String desde,
+            @RequestParam(value = "hasta", required = false) String hasta, HttpServletRequest request) {
+        logger.info("Requested filter with params " + desde + "  " + hasta);
+        Statistics statistics = new Statistics();
+        if (desde == null && hasta == null || desde.equals("") && hasta.equals("")) {
+            logger.info("Requested filter all " + desde + "  " + hasta);
+            statistics = headersManager.getStatistics(clickRepository.listAll());
+        } else if (hasta.equals("") && !desde.equals("")) {
+            logger.info("Requested filter only since " + desde + "  " + hasta);
+            statistics = headersManager.getStatistics(clickRepository.listSince(desde));
+        } else if (desde.equals("") && !hasta.equals("")) {
+            logger.info("Requested filter only for " + desde + "  " + hasta);
+            statistics = headersManager.getStatistics(clickRepository.listFor(hasta));
+        } else {
+            logger.info("Requested filter for and since " + desde + "  " + hasta);
+            statistics = headersManager.getStatistics(clickRepository.listSinceAndFor(desde, hasta));
+        }
+        return new ResponseEntity<Statistics>(statistics, HttpStatus.OK);
+    }
+
+    private void createAndSaveClick(String hash, String ip, String browser, String version, String os) {
+        Click cl = new Click(null, hash, new Date(System.currentTimeMillis()), null, browser, version, os, null, ip,
+                null);
+        cl = clickRepository.save(cl);
+        logger.info(cl != null ? "[" + hash + "] saved with id [" + cl.getId() + "]" : "[" + hash + "] was not saved");
+    }
 
-	private ResponseEntity<?> createSuccessfulRedirectToResponse(ShortURL l) {
-		HttpHeaders h = new HttpHeaders();
-		h.setLocation(URI.create(l.getTarget()));
-		return new ResponseEntity<>(h, HttpStatus.valueOf(l.getMode()));
-	}
+    private ResponseEntity<?> createSuccessfulRedirectToResponse(ShortURL l) {
+        HttpHeaders h = new HttpHeaders();
+        h.setLocation(URI.create(l.getTarget()));
+        return new ResponseEntity<>(h, HttpStatus.valueOf(l.getMode()));
+    }
 
-	@RequestMapping(value = "/link-single", method = RequestMethod.POST)
-	public ResponseEntity<ShortURL> singleShortener(@RequestParam("url") String url,
-			@RequestParam(value = "vCardFName", required = false) String vCardFName,
-			@RequestParam(value = "vCardCheckbox", required = false) Boolean vCardCheckbox,
-			@RequestParam(value = "errorCorrection", required = false) String errorCorrection,
-			@RequestParam(value = "mailCheckbox", required = false) Boolean mailCheckbox,
-			@RequestParam(value = "email", required = false) String email, HttpServletRequest request) {
-		logger.info("Requested new short for uri " + url);
+    @RequestMapping(value = "/link-single", method = RequestMethod.POST)
+    public ResponseEntity<ShortURL> singleShortener(@RequestParam("url") String url,
+            @RequestParam(value = "vCardFName", required = false) String vCardFName,
+            @RequestParam(value = "vCardCheckbox", required = false) Boolean vCardCheckbox,
+            @RequestParam(value = "errorCorrection", required = false) String errorCorrection,
+            @RequestParam(value = "mailCheckbox", required = false) Boolean mailCheckbox,
+            @RequestParam(value = "email", required = false) String email, HttpServletRequest request) {
+        logger.info("Requested new short for uri " + url);
 
-		ResponseEntity<ShortURL> response = UploadManager.singleShort(shortURLRepository, url, request, vCardFName,
-				vCardCheckbox, errorCorrection);
+        ResponseEntity<ShortURL> response = UploadManager.singleShort(shortURLRepository, url, request, vCardFName,
+                vCardCheckbox, errorCorrection);
 
-		if (response.getStatusCode().equals(HttpStatus.CREATED)) {
+        if (response.getStatusCode().equals(HttpStatus.CREATED)) {
 
-			if (mailCheckbox != null && mailCheckbox == true && email != null && !email.isEmpty()) {
+            if (mailCheckbox != null && mailCheckbox == true && email != null && !email.isEmpty()) {
 
-				logger.info("Preparing to send email...");
+                logger.info("Preparing to send email...");
 
-				VCard vcard = null;
-				String urlBase = BaseUrlManager.getLocalBaseUrl(request);
+                VCard vcard = null;
+                String urlBase = BaseUrlManager.getLocalBaseUrl(request);
 
-				if (vCardCheckbox != null && vCardCheckbox == true && vCardFName != null && !vCardFName.isEmpty()) {
+                if (vCardCheckbox != null && vCardCheckbox == true && vCardFName != null && !vCardFName.isEmpty()) {
 
-					vcard = new VCard(vCardFName, response.getBody().getUri());
-				}
-				if (errorCorrection == null || errorCorrection.isEmpty()) {
-					errorCorrection = "L"; // default
-				}
-				
-				// send mail with QR code
-				mailSender.sendMail(email, QrManager.createQRImage(urlBase, errorCorrection, vcard));
-			}
-		}
+                    vcard = new VCard(vCardFName, response.getBody().getUri());
+                }
+                if (errorCorrection == null || errorCorrection.isEmpty()) {
+                    errorCorrection = "L"; // default
+                }
 
-		return response;
-	}
+                // send mail with QR code
+                mailSender.sendMail(email, QrManager.createQRImage(urlBase, errorCorrection, vcard));
+            }
+        }
 
-	@RequestMapping(value = "/link-single-async-checks", method = RequestMethod.POST)
-	public ResponseEntity<ShortURL> singleShortenerAsyncChecks(@RequestParam("url") String url,
-			@RequestParam(value = "vCardFName", required = false) String vCardFName,
-			@RequestParam(value = "vCardCheckbox", required = false) Boolean vCardCheckbox,
-			@RequestParam(value = "errorCorrection", required = false) String errorCorrection,
-			HttpServletRequest request) {
-		logger.info("Requested new short for uri " + url);
+        return response;
+    }
 
-		return UploadManager.singleShortAsyncChecks(scheduler, shortURLRepository, url, request, vCardFName,
-				vCardCheckbox, errorCorrection);
-	}
+    @RequestMapping(value = "/link-single-async-checks", method = RequestMethod.POST)
+    public ResponseEntity<ShortURL> singleShortenerAsyncChecks(@RequestParam("url") String url,
+            @RequestParam(value = "vCardFName", required = false) String vCardFName,
+            @RequestParam(value = "vCardCheckbox", required = false) Boolean vCardCheckbox,
+            @RequestParam(value = "errorCorrection", required = false) String errorCorrection,
+            HttpServletRequest request) {
+        logger.info("Requested new short for uri " + url);
 
-	@RequestMapping(value = "/link-multi", method = RequestMethod.POST)
-	public ResponseEntity<ShortURL[]> multiShortener(@RequestParam("file") MultipartFile csvFile,
-			@RequestParam(value = "sponsor", required = false) String sponsor,
-			@RequestParam(value = "vCardFName", required = false) String vCardFName,
-			@RequestParam(value = "vCardCheckbox", required = false) Boolean vCardCheckbox,
-			@RequestParam(value = "errorCorrection", required = false) String errorCorrection,
-			HttpServletRequest request) {
+        return UploadManager.singleShortAsyncChecks(scheduler, shortURLRepository, url, request, vCardFName,
+                vCardCheckbox, errorCorrection);
+    }
 
-		logger.info("Requested new multi-short for CSV file '" + csvFile.getOriginalFilename() + "'");
+    @RequestMapping(value = "/link-multi", method = RequestMethod.POST)
+    public ResponseEntity<ShortURL[]> multiShortener(@RequestParam("file") MultipartFile csvFile,
+            @RequestParam(value = "sponsor", required = false) String sponsor,
+            @RequestParam(value = "vCardFName", required = false) String vCardFName,
+            @RequestParam(value = "vCardCheckbox", required = false) Boolean vCardCheckbox,
+            @RequestParam(value = "errorCorrection", required = false) String errorCorrection,
+            HttpServletRequest request) {
 
-		return UploadManager.multiShortSync(shortURLRepository, csvFile, request, vCardFName, vCardCheckbox,
-				errorCorrection);
-	}
+        logger.info("Requested new multi-short for CSV file '" + csvFile.getOriginalFilename() + "'");
 
-	@RequestMapping(value = "/link-multi-async-file", method = RequestMethod.POST)
-	public ResponseEntity<RedirectionDetails> multiShortenerAsyncFile(@RequestParam("file") MultipartFile csvFile,
-			@RequestParam(value = "sponsor", required = false) String sponsor, HttpServletRequest request) {
+        return UploadManager.multiShortSync(shortURLRepository, csvFile, request, vCardFName, vCardCheckbox,
+                errorCorrection);
+    }
 
-		logger.info("Requested new ASYNC multi-short for CSV file '" + csvFile.getOriginalFilename() + "'");
+    @RequestMapping(value = "/link-multi-async-file", method = RequestMethod.POST)
+    public ResponseEntity<RedirectionDetails> multiShortenerAsyncFile(@RequestParam("file") MultipartFile csvFile,
+            @RequestParam(value = "sponsor", required = false) String sponsor, HttpServletRequest request) {
 
-		return UploadManager.multiShortAsync(scheduler, shortURLRepository, tdStore, csvFile, request);
-	}
+        logger.info("Requested new ASYNC multi-short for CSV file '" + csvFile.getOriginalFilename() + "'");
 
-	@RequestMapping(value = "/link-multi-async-input", method = RequestMethod.POST)
-	public ResponseEntity<RedirectionDetails> multiShortenerAsyncInput(@RequestParam("input") String urlList,
-			@RequestParam(value = "sponsor", required = false) String sponsor, HttpServletRequest request) {
+        return UploadManager.multiShortAsync(scheduler, shortURLRepository, tdStore, csvFile, request);
+    }
 
-		logger.info("Requested new ASYNC multi-short for FORM DATA");
+    @RequestMapping(value = "/link-multi-async-input", method = RequestMethod.POST)
+    public ResponseEntity<RedirectionDetails> multiShortenerAsyncInput(@RequestParam("input") String urlList,
+            @RequestParam(value = "sponsor", required = false) String sponsor, HttpServletRequest request) {
 
-		String[] urls = urlList.split("\r?\n");
-		List<String> urlsList = new LinkedList<String>();
+        logger.info("Requested new ASYNC multi-short for FORM DATA");
 
-		for (String url : urls) {
-			urlsList.add(url);
-		}
+        String[] urls = urlList.split("\r?\n");
+        List<String> urlsList = new LinkedList<String>();
 
-		return UploadManager.multiShortAsync(scheduler, shortURLRepository, tdStore, urlsList, request);
-	}
+        for (String url : urls) {
+            urlsList.add(url);
+        }
 
-	@RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}+", produces = "application/json", method = RequestMethod.GET)
-	public ResponseEntity<UrlDetails> showDetailsJson(@PathVariable String id) {
+        return UploadManager.multiShortAsync(scheduler, shortURLRepository, tdStore, urlsList, request);
+    }
 
-		logger.info("Requested JSON details for id '" + id + "'");
+    @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}+", produces = "application/json", method = RequestMethod.GET)
+    public ResponseEntity<UrlDetails> showDetailsJson(@PathVariable String id) {
 
-		UrlDetails details = headersManager.getDetails(id);
+        logger.info("Requested JSON details for id '" + id + "'");
 
-		return new ResponseEntity<UrlDetails>(details, HttpStatus.OK);
-	}
+        UrlDetails details = headersManager.getDetails(id);
 
-	@RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}+", produces = "text/html", method = RequestMethod.GET)
-	public ResponseEntity<UrlDetails> showDetailsHtml(@PathVariable String id, HttpServletRequest request) {
+        return new ResponseEntity<UrlDetails>(details, HttpStatus.OK);
+    }
 
-		logger.info("Requested HTML details for id '" + id + "' --> REDIRECT");
+    @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}+", produces = "text/html", method = RequestMethod.GET)
+    public ResponseEntity<UrlDetails> showDetailsHtml(@PathVariable String id, HttpServletRequest request) {
 
-		HttpHeaders h = new HttpHeaders();
+        logger.info("Requested HTML details for id '" + id + "' --> REDIRECT");
 
-		try {
-			h.setLocation(new URI(request.getRequestURL() + ".html"));
-			return new ResponseEntity<UrlDetails>(h, HttpStatus.TEMPORARY_REDIRECT);
+        HttpHeaders h = new HttpHeaders();
 
-		} catch (URISyntaxException e) {
-			return new ResponseEntity<UrlDetails>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
+        try {
+            h.setLocation(new URI(request.getRequestURL() + ".html"));
+            return new ResponseEntity<UrlDetails>(h, HttpStatus.TEMPORARY_REDIRECT);
 
-	@RequestMapping(value = "/task/{id:.*}", produces = "application/json", method = RequestMethod.GET)
-	public ResponseEntity<UploadTaskData> showTaskDetails(@PathVariable String id) {
+        } catch (URISyntaxException e) {
+            return new ResponseEntity<UrlDetails>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
-		logger.info("Requested TASK progress for id '" + id + "'");
+    @RequestMapping(value = "/task/{id:.*}", produces = "application/json", method = RequestMethod.GET)
+    public ResponseEntity<UploadTaskData> showTaskDetails(@PathVariable String id) {
 
-		UploadTaskData details = tdStore.find(id);
+        logger.info("Requested TASK progress for id '" + id + "'");
 
-		// TODO ERROR si no esta la task en cache
+        UploadTaskData details = tdStore.find(id);
 
-		return new ResponseEntity<UploadTaskData>(details, HttpStatus.OK);
-	}
+        // TODO ERROR si no esta la task en cache
 
-	@ResponseBody
-	@RequestMapping(value = "/qr/{id:.*}", produces = MediaType.IMAGE_PNG_VALUE, method = RequestMethod.GET)
-	public byte[] getQr(@PathVariable String id,
-			@RequestParam(value = "vCardFName", required = false) String vCardFName,
-			@RequestParam(value = "errorCorrection", required = false) String errorCorrection,
-			HttpServletRequest request) {
+        return new ResponseEntity<UploadTaskData>(details, HttpStatus.OK);
+    }
 
-		try {
-			VCard vcard = null;
-			String urlBase = BaseUrlManager.getLocalBaseUrl(request);
+    @ResponseBody
+    @RequestMapping(value = "/qr/{id:.*}", produces = MediaType.IMAGE_PNG_VALUE, method = RequestMethod.GET)
+    public byte[] getQr(@PathVariable String id,
+            @RequestParam(value = "vCardFName", required = false) String vCardFName,
+            @RequestParam(value = "errorCorrection", required = false) String errorCorrection,
+            HttpServletRequest request) {
 
-			if (vCardFName != null && !vCardFName.isEmpty()) {
-				vcard = new VCard(vCardFName, new URI(urlBase + "/" + id));
-			}
+        try {
+            VCard vcard = null;
+            String urlBase = BaseUrlManager.getLocalBaseUrl(request);
 
-			BufferedImage image = QrManager.createQRImage(urlBase, errorCorrection, vcard);
+            if (vCardFName != null && !vCardFName.isEmpty()) {
+                vcard = new VCard(vCardFName, new URI(urlBase + "/" + id));
+            }
 
-			// convert image to byte array
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ImageIO.write(image, "png", baos);
-			baos.flush();
-			byte[] imageInByte = baos.toByteArray();
-			baos.close();
+            BufferedImage image = QrManager.createQRImage(urlBase, errorCorrection, vcard);
 
-			return imageInByte;
+            // convert image to byte array
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", baos);
+            baos.flush();
+            byte[] imageInByte = baos.toByteArray();
+            baos.close();
 
-		} catch (URISyntaxException e) {
+            return imageInByte;
 
-			logger.info("QR image failed. Bad URI syntax.");
-			return null;
-		} catch (IOException e) {
+        } catch (URISyntaxException e) {
 
-			logger.info("QR image failed. Convert to byte array failed.");
-			return null;
-		}
-	}
+            logger.info("QR image failed. Bad URI syntax.");
+            return null;
+        } catch (IOException e) {
+
+            logger.info("QR image failed. Convert to byte array failed.");
+            return null;
+        }
+    }
 }
