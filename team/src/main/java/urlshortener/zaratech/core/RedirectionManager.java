@@ -5,6 +5,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -18,7 +20,6 @@ import urlshortener.common.repository.ShortURLRepository;
 import urlshortener.zaratech.domain.RedirectionException;
 import urlshortener.zaratech.scheduling.RedirectionCheckTask;
 import urlshortener.zaratech.scheduling.Scheduler;
-import urlshortener.zaratech.scheduling.UploadTask;
 
 public class RedirectionManager {
     
@@ -43,27 +44,36 @@ public class RedirectionManager {
         try {
             uri = new URI(url);
 
-            HttpClient client = HttpClientBuilder.create().build();
-            HttpClientContext context = HttpClientContext.create();
+            HttpClient client = HttpClientBuilder.create().disableRedirectHandling().build();
 
             try {
-
-                List<URI> redirectLocations;
+                logger.info("Checking redirection...");
+                String location;
+                Header[] headerLocations;
 
                 // HTTP GET
-                client.execute(new HttpGet(uri), context);
-                redirectLocations = context.getRedirectLocations();
-
-                if (redirectLocations != null && !redirectLocations.isEmpty()) {
-                    for (URI location : redirectLocations) {
-                        if (location != null) {
-                            if (url.equals(location.toString())) {
-
-                                isRedirected = true;
-                            }
+                HttpResponse response = client.execute(new HttpGet(uri));
+                headerLocations = response.getHeaders("location");
+                
+                if (headerLocations.length > 0){
+                    
+                    location = headerLocations[0].getValue();
+                    if(location != null && !location.isEmpty()){
+                        
+                        logger.info("Response header location: " + location);
+                        if (location.equalsIgnoreCase(url)){
+                            
+                            isRedirected = true;
+                        } else {
+                            isRedirected = false;
                         }
+                    } else {
+                        isRedirected = false;
                     }
                 }
+                
+                logger.info("Redirection check end.");
+                
             } catch (ClientProtocolException e1) {
                 logger.info("Failed request execution. Http protocol error");
                 throw new RedirectionException();

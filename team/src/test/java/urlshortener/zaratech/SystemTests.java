@@ -13,8 +13,6 @@ import java.util.*;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,8 +38,6 @@ import urlshortener.zaratech.store.RedisSrv;
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @DirtiesContext
 public class SystemTests {
-
-    private static final Logger logger = LoggerFactory.getLogger(SystemTests.class);
 
     @Autowired
     protected ClickRepository clickRepository;
@@ -78,14 +74,24 @@ public class SystemTests {
         assertThat(rc.read("$.hash"), is("f684a3c4"));
         assertThat(rc.read("$.uri"), is("http://localhost:" + this.port + "/f684a3c4"));
         assertThat(rc.read("$.target"), is("http://example.com/"));
+        assertThat(rc.read("$.qr"), is("http://localhost:" + this.port + "/qr/f684a3c4?errorCorrection=L"));
         entity = new TestRestTemplate()
                 .getForEntity("http://localhost:" + this.port + "/qr/f684a3c4?errorCorrection=L", String.class);
         assertThat(entity.getStatusCode(), is(HttpStatus.OK));
-
-        // TODO comprobar que una peticion HTTP GET a la uri original no es una
-        // redireccion a la misma uri
     }
 
+    @Test
+    public void testSelfRedirection() throws Exception {
+        
+        // not redirected uri -> it is created
+        ResponseEntity<String> entity = postLink("http://example.com/");
+        assertThat(entity.getStatusCode(), not(HttpStatus.TEMPORARY_REDIRECT));
+        assertThat(entity.getStatusCode(), is(HttpStatus.CREATED));
+        
+        // uri that redirects to itself -> it is not created
+        entity = postLink("http://localhost:" + this.port + "/redirect");
+        assertThat(entity.getStatusCode(), is(HttpStatus.BAD_REQUEST));
+    }
     @Test
     public void testRedirection() throws Exception {
         postLink("http://example.com/");

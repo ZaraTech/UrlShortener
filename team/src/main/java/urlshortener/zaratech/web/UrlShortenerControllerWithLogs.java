@@ -66,6 +66,9 @@ public class UrlShortenerControllerWithLogs {
 
     @Autowired
     private AppMailSender mailSender;
+    
+    /////
+    private int numRedirec = 0;
 
     @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi|stats-ws).*}", method = RequestMethod.GET)
     public ResponseEntity<?> redirectTo(@PathVariable String id, HttpServletRequest request) {
@@ -211,15 +214,24 @@ public class UrlShortenerControllerWithLogs {
             @RequestParam(value = "sponsor", required = false) String sponsor, HttpServletRequest request) {
 
         logger.info("Requested new ASYNC multi-short for FORM DATA");
+        
+        String list = urlList.trim();
+        
+        if (list.isEmpty()){
+            
+            logger.info("The input is not valid.");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            
+        } else {
+            String[] urls = urlList.split("\r?\n");
+            List<String> urlsList = new LinkedList<String>();
 
-        String[] urls = urlList.split("\r?\n");
-        List<String> urlsList = new LinkedList<String>();
+            for (String url : urls) {
+                urlsList.add(url);
+            }
 
-        for (String url : urls) {
-            urlsList.add(url);
+            return UploadManager.multiShortAsync(scheduler, shortURLRepository, tdStore, urlsList, request);
         }
-
-        return UploadManager.multiShortAsync(scheduler, shortURLRepository, tdStore, urlsList, request);
     }
 
     @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}+", produces = "application/json", method = RequestMethod.GET)
@@ -296,6 +308,31 @@ public class UrlShortenerControllerWithLogs {
 
             logger.info("QR image failed. Convert to byte array failed.");
             return null;
+        }
+    }
+    
+    // ENDPOINT - TEST SELF REDIRECTION
+    @RequestMapping(value = "/redirect", method = RequestMethod.GET)
+    public ResponseEntity<UploadTaskData> selfRedirectEndPoint(HttpServletRequest request) {
+
+        if (request.getLocalAddr().equals("127.0.0.1") || request.getLocalAddr().equals("::1")){
+            
+            if (numRedirec < 5){
+                logger.info("Self redirection endpoint. Always return 307..");
+                numRedirec++;
+                
+                HttpHeaders h = new HttpHeaders();
+                h.setLocation(URI.create(BaseUrlManager.getLocalBaseUrl(request) + "/redirect"));
+                return new ResponseEntity<>(h, HttpStatus.TEMPORARY_REDIRECT);
+            } else {
+                logger.info("5 redirections reached.");
+
+                HttpHeaders h = new HttpHeaders();
+                h.setLocation(URI.create(BaseUrlManager.getLocalBaseUrl(request)));
+                return new ResponseEntity<>(h, HttpStatus.OK);
+            }
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 }
