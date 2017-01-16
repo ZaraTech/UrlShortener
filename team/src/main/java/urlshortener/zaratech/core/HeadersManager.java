@@ -33,7 +33,12 @@ public class HeadersManager {
         ShortURL url = getUrlDetails(id);
         Long clicks = getClickDetails(id);
         Long visitors = getVisitors(id);
-        return new UrlDetails(id, url.getTarget(), url.getCreated(), clicks, visitors);
+        
+        if(url != null && clicks >= 0L && visitors >= 0l){
+            return new UrlDetails(id, url.getTarget(), url.getCreated(), clicks, visitors);
+        } else {
+            return null;
+        }
     }
 
     public UserAgentDetails getUA(String agentStr) {

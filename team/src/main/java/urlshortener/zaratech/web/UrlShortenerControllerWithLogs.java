@@ -67,7 +67,7 @@ public class UrlShortenerControllerWithLogs {
     @Autowired
     private AppMailSender mailSender;
     
-    /////
+
     private int numRedirec = 0;
 
     @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi|stats-ws).*}", method = RequestMethod.GET)
@@ -167,7 +167,8 @@ public class UrlShortenerControllerWithLogs {
                 }
 
                 // send mail with QR code
-                mailSender.sendMail(email, QrManager.createQRImage(urlBase, errorCorrection, vcard));
+                String shortUrl = response.getBody().getUri().toString();
+                mailSender.sendMail(email, QrManager.createQRImage(shortUrl, errorCorrection, vcard));
             }
         }
 
@@ -240,8 +241,12 @@ public class UrlShortenerControllerWithLogs {
         logger.info("Requested JSON details for id '" + id + "'");
 
         UrlDetails details = headersManager.getDetails(id);
-
-        return new ResponseEntity<UrlDetails>(details, HttpStatus.OK);
+        
+        if(details != null){
+            return new ResponseEntity<UrlDetails>(details, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<UrlDetails>(HttpStatus.NOT_FOUND);
+        } 
     }
 
     @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi).*}+", produces = "text/html", method = RequestMethod.GET)
@@ -289,7 +294,7 @@ public class UrlShortenerControllerWithLogs {
                 vcard = new VCard(vCardFName, new URI(urlBase + "/" + id));
             }
 
-            BufferedImage image = QrManager.createQRImage(urlBase, errorCorrection, vcard);
+            BufferedImage image = QrManager.createQRImage(urlBase + "/" + id, errorCorrection, vcard);
 
             // convert image to byte array
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
