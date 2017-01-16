@@ -8,7 +8,7 @@ $(document).ready(
         
         alert(window.location.host);
     
-        ws = new WebSocket("ws://" + window.location.host + "/stats-ws");
+        ws = new WebSocket("wss://" + window.location.host + "/stats-ws");
         ws.onmessage = function(event) {
             var msg=JSON.parse(event.data);
             if(JSON.stringify(msg) !== JSON.stringify(oldData) ){
