@@ -5,6 +5,8 @@ $(document).ready(
     function() {
     
         loadCalendar();
+        
+        alert(window.location.host);
     
         ws = new WebSocket("ws://" + window.location.host + "/stats-ws");
         ws.onmessage = function(event) {

@@ -90,7 +90,7 @@ public class UrlShortenerControllerWithLogs {
     @RequestMapping(value = "/statistics", produces = "application/json", method = RequestMethod.GET)
     public ResponseEntity<Statistics> showStatistics(@RequestParam(value = "desde", required = false) String desde,
             @RequestParam(value = "hasta", required = false) String hasta, HttpServletRequest request) {
-        logger.info("Requested filter with params " + desde + "  " + hasta);
+        //logger.info("Requested filter with params " + desde + "  " + hasta);
 
         List<Click> clicks;
 
