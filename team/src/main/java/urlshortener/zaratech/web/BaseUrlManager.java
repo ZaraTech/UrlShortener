@@ -10,9 +10,11 @@ public class BaseUrlManager {
      */
     public static String getLocalBaseUrl(HttpServletRequest request){
         
-        String url = "";
+        String url = "http://" + request.getLocalName() + ":" + request.getServerPort();
         
-        url += "http://" + request.getLocalName() + ":" + request.getServerPort();
+        if(url.contains("heroku")){
+            url = "https://zaratech-bus.herokuapp.com";
+        }
         
         return url;
     }

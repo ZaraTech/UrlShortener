@@ -19,7 +19,7 @@ public class RedirectionCheckScheduledTask implements Runnable {
     @Override
     public void run() {
         logger.info("--- STARTING SCHEDULED REDIRECTION CHECK ---");
-        RedirectionManager.checkList(shortURLRepository);
+        RedirectionManager.checkNorFromList(shortURLRepository);
         logger.info("--- ENDING SCHEDULED REDIRECTION CHECK ---");
     }
 }
