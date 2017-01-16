@@ -1,13 +1,61 @@
 var ws;
+var oldData=null;
+
 $(document).ready(
     function() {
+    
+        loadCalendar();
+    
         ws = new WebSocket("ws://" + window.location.host + "/stats-ws");
         ws.onmessage = function(event) {
             var msg=JSON.parse(event.data);
-            loadData(msg);
-            loadCalendar();
-            loadChart(msg);
+            if(JSON.stringify(msg) !== JSON.stringify(oldData) ){
+                loadData(msg);
+                loadChart(msg);
+                oldData = msg;
+            }
+            
         };
+        
+        ws.onclose = function (event) {
+			var reason = "";
+			
+			if(event.code == 1000)
+				;// do nothing
+			else if(event.code == 1001)
+				;// do nothing
+			else if(event.code == 1002)
+				reason = "Protocol error";
+			else if(event.code == 1003)
+				reason = "Type of data not accepted.";
+			else if(event.code == 1005)
+				reason = "No status code was actually present.";
+			else if(event.code == 1006)
+			   reason = "Connection was closed abnormally";
+			else if(event.code == 1007)
+				reason = "Received data within a message that was not consistent with the type of the message.";
+			else if(event.code == 1008)
+				reason = "Message that \"violates its policy\".";
+			else if(event.code == 1009)
+			   reason = "Message too big.";
+			else if(event.code == 1010) // Note that this status code is not used by the server, because it can fail the WebSocket handshake instead.
+				reason = "One or more extensions expected<br /> Specifically, the extensions that are needed are: " + event.reason;
+			else if(event.code == 1011)
+				reason = "Unexpected condition fulfilling the request.";
+			else if(event.code == 1015)
+				reason = "Failure to perform a TLS handshake.";
+			else
+				reason = "Unknown reason";
+			
+			if(reason != ""){
+				$('#result').html("<div class='alert alert-danger lead'>ERROR: "+ reason +"</div>");
+			}	
+		};
+          
+        ws.onerror = function(event) {
+            $('#result').html("<div class='alert alert-danger lead'>ERROR: There was an error with your connection.<br/>Reload the page please!</div>");
+        };
+        
         $('#form').submit(
             function(event){
                 event.preventDefault();
@@ -20,77 +68,7 @@ $(document).ready(
     }
 );
 
-function getStatistics() {
-    $. ajax({
-        type : "GET",
-        url : "/statistics",
-        success : function(msg) {
-            loadData(msg);
-            loadCalendar();
-            loadChart(msg);
-        },
-        error : function (jqXHR, exception) {
-            var msg = '';
-            if (jqXHR.status === 0) {
-                msg = 'Can not connect to the server. Verify Network.';
-            } else if (jqXHR.status == 400) {
-                msg = 'Bad resquest. [HTTP Code 400]';
-            } else if (jqXHR.status == 404) {
-                msg = 'Requested page not found. [HTTP Code 404]';
-            } else if (jqXHR.status == 500) {
-                msg = 'Internal Server Error. [HTTP Code 500]';
-            } else if (exception === 'parsererror') {
-                msg = 'Requested JSON parse failed.';
-            } else if (exception === 'timeout') {
-                msg = 'Time out error.';
-            } else if (exception === 'abort') {
-                msg = 'Ajax request aborted.';
-            } else {
-                msg = 'Uncaught Error.\n' + jqXHR.responseText;
-            }
-            $("#result").html(
-                "<div class='alert alert-danger lead'>ERROR: "+ msg +"</div>");
-        }
-    } );
-}
-
-function getStatisticsFiltered(data) {
-    $. ajax({
-        type : "GET",
-        url : "/statistics",
-        data: data,
-        success : function(msg) {
-            loadData(msg);
-            loadCalendar();
-            loadChart(msg);
-        },
-        error : function (jqXHR, exception) {
-            var msg = '';
-            if (jqXHR.status === 0) {
-                msg = 'Can not connect to the server. Verify Network.';
-            } else if (jqXHR.status == 400) {
-                msg = 'Bad resquest. [400]';
-            } else if (jqXHR.status == 404) {
-                msg = 'Requested page not found. [404]';
-            } else if (jqXHR.status == 500) {
-                msg = 'Internal Server Error. [500]';
-            } else if (exception === 'parsererror') {
-                msg = 'Requested JSON parse failed.';
-            } else if (exception === 'timeout') {
-                msg = 'Time out error.';
-            } else if (exception === 'abort') {
-                msg = 'Ajax request aborted.';
-            } else {
-                msg = 'Uncaught Error.\n' + jqXHR.responseText;
-            }
-            $("#result").html(
-                "<div class='alert alert-danger lead'>ERROR: "+ msg +"</div>");
-        }
-    } );
-}
-
 function loadData(msg) {
-    console.log('Mostrando estadisticas ');
     var data="";
     data+=
         "<div class='text-left'><table class='table table-hover table-bordered' id='data'>"
@@ -103,7 +81,6 @@ function loadData(msg) {
         + "</thead><tbody>";
 
     var browserLen = msg.browserList.length;
-
     for(var i=0;i<browserLen;i++) {
         var versionLen=msg.versionList[i].length;
         for(var j=0;j<versionLen;j++){
@@ -122,7 +99,8 @@ function loadData(msg) {
         + "<th>Click Stats</th>"
         + "</tr>"
         + "</thead><tbody>";
-    var osLen=msg.osList.length;
+        
+    var osLen=msg.osList.length;    
     for(var i=0;i<osLen;i++) {
         // save os data
         data += "<tr><td>" +msg.osList[i]+"</td>"+"<td>" +((msg.clicksforos[i]/msg.clicks)*100).toFixed(2)+" %</td></tr>";
@@ -130,9 +108,8 @@ function loadData(msg) {
     data+="</tbody></table></div>";
 
     $("#result").html(data);
-
-
 }
+
 function loadCalendar(){
     $( "#datepicker" ).datepicker({ dateFormat: 'yy-mm-dd' });
     $( "#datepicker2" ).datepicker({ dateFormat: 'yy-mm-dd' });

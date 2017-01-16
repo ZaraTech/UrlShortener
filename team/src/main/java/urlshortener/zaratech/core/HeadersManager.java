@@ -55,21 +55,21 @@ public class HeadersManager {
         for(Click click : clicks){
             
             if (st.getIndexBrowser(click.getBrowser()) == -1) {
-                logger.info("NEW browser "+ click.getBrowser()); 
+                //logger.info("NEW browser "+ click.getBrowser()); 
                 st.insertBrowser(click.getBrowser());
             } else {
-                logger.info("OLD browser "+ click.getBrowser());
+                //logger.info("OLD browser "+ click.getBrowser());
                 st.updateclicksForBrowser(st.getIndexBrowser(click.getBrowser()));
             }
 
             int browserIndex = st.getIndexBrowser(click.getBrowser());
             
             if (st.getIndexVersion(browserIndex, click.getVersion()) == -1) {
-                logger.info("NEW version "+ click.getVersion());
+                //logger.info("NEW version "+ click.getVersion());
                 st.insertVersion(browserIndex, click.getVersion());
             } else {
                 int versionIndex = st.getIndexVersion(browserIndex, click.getVersion());
-                logger.info("OLD version "+ click.getVersion());
+                //logger.info("OLD version "+ click.getVersion());
                 
                 st.updateclicksForBrowserAndVersion(browserIndex, versionIndex);
             }

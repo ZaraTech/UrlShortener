@@ -76,7 +76,7 @@ public class Statistics {
 
     public float getUseBrowserAndVersion(int index1,int index2){
         float r=(float)this.clicksForBrowserAndVersion.get(index1).get(index2)/totalClicks;
-        logger.info("Use of version "+r);
+        //logger.info("Use of version "+r);
         return r;
     }
 
