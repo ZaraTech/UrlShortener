@@ -283,4 +283,80 @@ public class SystemTests {
             csv.delete();
         }
     }
+    
+    @Test
+    public void testMultiUploadAsyncWithForm() throws Exception {
+
+        RedisSrv redis = new RedisSrv();
+
+        ResponseEntity<String> postResp = postUriListAsync();
+
+        // test if the TASK has been accepted
+        assertThat(postResp.getStatusCode(), is(HttpStatus.ACCEPTED));
+
+        // test if there is an URI which identifies the TASK
+        assertThat(postResp.hasBody(), is(true));
+
+        String taskUrl = postResp.getBody();
+
+        assertNotNull(taskUrl);
+
+        String partsArray[] = taskUrl.split("\":\"");
+
+        assertThat(partsArray.length, is(2));
+
+        taskUrl = partsArray[1];
+        taskUrl = taskUrl.replaceAll("[}\\\"]", "");
+
+        assertThat(taskUrl, not(equalTo("")));
+
+        // test TASK URI
+        ResponseEntity<String> entity = new TestRestTemplate().getForEntity(taskUrl, String.class);
+        assertThat(entity.getStatusCode(), is(HttpStatus.OK));
+
+        assertThat(entity.hasBody(), is(true));
+
+        String urlList = entity.getBody();
+
+        assertNotNull(urlList);
+        assertThat(urlList, not(equalTo("")));
+
+        // test URIs List
+        String[] urls = { "http://example.com/", "http://example1.org/", "http://github.com/", "http://unizar.es/",
+                "http://google.com/" };
+        for (String url : urls) {
+            assertTrue(urlList.indexOf(url) > 0);
+        }
+
+        // test URIs progress
+        int occurances = StringUtils.countOccurrencesOf(urlList, "progress");
+        assertThat(occurances, is(urls.length));
+
+        // stop redis server
+        redis.stop();
+    }
+
+    /**
+     * Post an URI list to the 'link-multi-async-input' endpoint
+     */
+    private ResponseEntity<String> postUriListAsync() {
+        MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+
+        parts.add("input", generateUriList());
+
+        return new TestRestTemplate().postForEntity("http://localhost:" + this.port + "/link-multi-async-input", parts,
+                String.class);
+    }
+
+    /**
+     * Generate an example list of URIs
+     */
+    private String generateUriList() {
+
+        String resp = "http://example.com/\r\nhttp://example1.org/\r\n";
+        resp += "http://github.com/\r\nhttp://unizar.es/\r\nhttp://google.com/\r\n";
+
+        return resp;
+    }
+
 }
