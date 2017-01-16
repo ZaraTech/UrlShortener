@@ -13,8 +13,6 @@ import java.util.*;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,8 +38,6 @@ import urlshortener.zaratech.store.RedisSrv;
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @DirtiesContext
 public class SystemTests {
-
-    private static final Logger logger = LoggerFactory.getLogger(SystemTests.class);
 
     @Autowired
     protected ClickRepository clickRepository;
@@ -86,6 +82,18 @@ public class SystemTests {
         // redireccion a la misma uri
     }
 
+    @Test
+    public void testSelfRedirection() throws Exception {
+        ResponseEntity<String> entity = new TestRestTemplate()
+              .getForEntity("http://example.com", String.class);
+        assertThat(entity.getStatusCode(), is(HttpStatus.TEMPORARY_REDIRECT));
+        assertThat(entity.getHeaders().getLocation(), not(new URI("http://example.com")));
+        
+//        ResponseEntity<String> entity = new TestRestTemplate()
+//                .getForEntity("http://localhost:" + this.port + "/redirect", String.class);
+//        assertThat(entity.getStatusCode(), is(HttpStatus.TEMPORARY_REDIRECT));
+//        assertThat(entity.getHeaders().getLocation(), is(new URI("http://localhost:" + this.port + "/redirect")));
+    }
     @Test
     public void testRedirection() throws Exception {
         postLink("http://example.com/");

@@ -80,6 +80,8 @@ public class UploadManager {
                 h.setLocation(su.getUri());
                 return new ResponseEntity<>(su, h, HttpStatus.CREATED);
             } else {
+                
+                logger.info("The URI is not valid.");
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
         } catch (Exception e) {
@@ -127,11 +129,11 @@ public class UploadManager {
                     throws NoQrException, RedirectionException {
 
         ShortURL su = createAndSaveIfValid(shortURLRepository, urlBase, url, UUID.randomUUID().toString(), ip);
-        
-        logger.info("Checking Uri redirects ASYNC...");
-        RedirectionManager.startAsyncCheck(scheduler, shortURLRepository, su);
 
         if (su != null) {
+            
+            logger.info("Checking Uri redirects ASYNC...");
+            RedirectionManager.startAsyncCheck(scheduler, shortURLRepository, su);
             
             // QR Manager
             su = QrManager.getLocalUriWithQR(su, urlBase, vCardFName, vCardCheckbox, errorCorrection);

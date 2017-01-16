@@ -66,6 +66,9 @@ public class UrlShortenerControllerWithLogs {
 
     @Autowired
     private AppMailSender mailSender;
+    
+    /////
+    private int numRedirec = 0;
 
     @RequestMapping(value = "/{id:(?!link-single|link-multi|index|single|multi|stats-ws).*}", method = RequestMethod.GET)
     public ResponseEntity<?> redirectTo(@PathVariable String id, HttpServletRequest request) {
@@ -317,5 +320,27 @@ public class UrlShortenerControllerWithLogs {
             logger.info("QR image failed. Convert to byte array failed.");
             return null;
         }
+    }
+    
+    // ENDPOINT DE TEST SELF REDIRECTION
+    @RequestMapping(value = "/redirect", method = RequestMethod.GET)
+    public ResponseEntity<UploadTaskData> selfRedirectEndPoint(HttpServletRequest request) {
+
+        if (numRedirec < 5){
+            logger.info("Self redirection endpoint. Always return 307..");
+            numRedirec++;
+            
+            HttpHeaders h = new HttpHeaders();
+            h.setLocation(URI.create(BaseUrlManager.getLocalBaseUrl(request) + "/redirect"));
+            return new ResponseEntity<>(h, HttpStatus.TEMPORARY_REDIRECT);
+        } else {
+            logger.info("5 redirections reached.");
+
+            HttpHeaders h = new HttpHeaders();
+            h.setLocation(URI.create(BaseUrlManager.getLocalBaseUrl(request)));
+            return new ResponseEntity<>(h, HttpStatus.OK);
+        }
+        
+        
     }
 }
